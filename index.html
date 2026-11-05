@@ -3,143 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RA1 Vision-Only AI | Project Dashboard</title>
+    <title>RA1 Vision AI // Command Console</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            background-color: #0b0f19;
-            color: #cbd5e1;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #030712;
+            color: #94a3b8;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         }
-        .glow-red {
-            box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+        .blueprint-card {
+            background: linear-gradient(135deg, rgba(29, 78, 216, 0.08) 0%, rgba(3, 7, 18, 0.95) 100%);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            box-shadow: inset 0 0 20px rgba(29, 78, 216, 0.05);
         }
-        .border-tech {
-            border: 1px solid rgba(239, 68, 68, 0.3);
+        .alert-border {
+            border: 1px solid rgba(239, 68, 68, 0.4);
+        }
+        .scanlines {
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between p-4 md:p-8">
+<body class="min-h-screen flex flex-col justify-between p-4 md:p-8 scanlines">
 
-    <!-- Header Section -->
-    <header class="max-w-6xl mx-auto w-full mb-8">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-gray-800 pb-4">
+    <!-- Header / Command Bar -->
+    <header class="max-w-6xl mx-auto w-full mb-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-red-900/50 pb-4 gap-4">
             <div>
                 <div class="flex items-center gap-3">
-                    <h1 class="text-3xl font-extrabold tracking-wider text-white uppercase">RA1 Vision AI</h1>
-                    <span class="bg-red-900/60 text-red-400 text-xs font-bold px-2.5 py-1 rounded border border-red-700/50 uppercase tracking-widest animate-pulse">
-                        Under Development
+                    <h1 class="text-2xl md:text-3xl font-black tracking-widest text-red-500 uppercase">RA1 Vision AI</h1>
+                    <span class="bg-red-950 text-red-400 text-xs font-bold px-3 py-1 rounded border border-red-700/60 uppercase tracking-widest animate-pulse">
+                        Status: Under Development
                     </span>
                 </div>
-                <p class="text-sm text-gray-400 mt-1">Zero Code Injection • Pure Computer Vision • Hardware-Independent Autonomy</p>
+                <p class="text-xs text-blue-400 tracking-wider mt-1">ZERO CODE INJECTION • PURE COMPUTER VISION • HARDWARE-INDEPENDENT AUTONOMY</p>
             </div>
-            <div class="mt-4 md:mt-0 flex gap-3 text-xs font-mono">
-                <span class="bg-gray-800 px-3 py-1.5 rounded text-gray-300 border border-gray-700">GPU: RTX 4060</span>
-                <span class="bg-gray-800 px-3 py-1.5 rounded text-gray-300 border border-gray-700">Target: OpenRA / C&C RA1</span>
+            <div class="flex gap-2 text-xs">
+                <span class="bg-gray-900 px-3 py-1.5 rounded text-gray-300 border border-gray-800">RTX 4060 GPU</span>
+                <span class="bg-gray-900 px-3 py-1.5 rounded text-gray-300 border border-gray-800">OpenRA / RA1</span>
             </div>
         </div>
     </header>
 
-    <!-- Main Content Grid -->
+    <!-- Main Grid -->
     <main class="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow">
         
-        <!-- Column 1 & 2: Strategy & Technical Architecture -->
+        <!-- Left 2 Columns: Blueprints & Roadmap -->
         <div class="lg:col-span-2 space-y-6">
             
-            <!-- Vision-Only Core Strategy -->
-            <section class="bg-gray-900/80 p-6 rounded-lg border-tech glow-red">
-                <h2 class="text-xl font-bold text-red-500 uppercase tracking-wide mb-3 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-                    Vision-Only Core Strategy
+            <!-- Blueprint Schematic Card (C&C Style) -->
+            <section class="blueprint-card p-6 rounded relative overflow-hidden">
+                <div class="absolute top-2 right-3 text-[10px] text-blue-500/40 uppercase tracking-widest">Doc: RA1-SPEC-01</div>
+                <h2 class="text-sm font-bold text-blue-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full animate-ping"></span>
+                    System Blueprint & Telemetry
                 </h2>
-                <p class="text-gray-300 text-sm leading-relaxed mb-4">
-                    Strict adherence to zero memory hooks, internal hooks, or frame injection libraries. The bot perceives the match standardly via live screen capturing and issues command inputs purely via OS-level mouse/keyboard drivers.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 font-mono text-xs">
-                    <div class="bg-gray-800/80 p-3 rounded border border-gray-700">
-                        <div class="text-red-400 font-bold mb-1">1. Perception</div>
-                        <div class="text-gray-400">MSS / DXCam high-FPS window grabbing (1280x720 ROI).</div>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div class="bg-blue-950/30 p-3 rounded border border-blue-900/40">
+                        <div class="text-blue-300 font-bold">PERCEPTION</div>
+                        <div class="text-gray-400 mt-1">MSS / DXCam Window Capture (1280x720 ROI)</div>
                     </div>
-                    <div class="bg-gray-800/80 p-3 rounded border border-gray-700">
-                        <div class="text-red-400 font-bold mb-1">2. Brain</div>
-                        <div class="text-gray-400">OpenCV matching transitioning to CUDA YOLO nano models.</div>
+                    <div class="bg-blue-950/30 p-3 rounded border border-blue-900/40">
+                        <div class="text-blue-300 font-bold">BRAIN CORE</div>
+                        <div class="text-gray-400 mt-1">OpenCV matching & CUDA YOLO Nano models</div>
                     </div>
-                    <div class="bg-gray-800/80 p-3 rounded border border-gray-700">
-                        <div class="text-red-400 font-bold mb-1">3. Execution</div>
-                        <div class="text-gray-400">Hardware mouse & keyboard scan-code dispatchers.</div>
+                    <div class="bg-blue-950/30 p-3 rounded border border-blue-900/40">
+                        <div class="text-blue-300 font-bold">EXECUTION</div>
+                        <div class="text-gray-400 mt-1">OS-level DirectInput hardware scan-codes</div>
+                    </div>
+                    <div class="bg-blue-950/30 p-3 rounded border border-blue-900/40">
+                        <div class="text-blue-300 font-bold">STACK</div>
+                        <div class="text-gray-400 mt-1">Python 3.14 + PyDirectInput</div>
                     </div>
                 </div>
             </section>
 
-            <!-- Line of Thought & Future Strategy -->
-            <section class="bg-gray-900/50 p-6 rounded-lg border border-gray-800 space-y-4">
-                <h3 class="text-lg font-bold text-white tracking-wide">Line of Thought & Architectural Roadmap</h3>
+            <!-- Line of Thought & Strategy -->
+            <section class="bg-gray-950/80 p-6 rounded alert-border space-y-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-widest text-red-400">Architectural Line of Thought</h3>
                 
-                <div class="space-y-4 text-sm">
-                    <div class="border-l-2 border-red-500 pl-4 py-1">
-                        <h4 class="font-bold text-gray-200">Phase 1: Deterministic Basics (Active)</h4>
-                        <p class="text-gray-400 text-xs mt-1">Unpack MCV, parse deterministic UI sidebar, establish structural build loops (Power Plant, Barracks), and set down base infrastructure without falling into memory hooks.</p>
+                <div class="space-y-3 text-xs">
+                    <div class="border-l-2 border-red-500 pl-3 py-1">
+                        <span class="text-white font-bold">PHASE 1: Deterministic Basics (Active)</span>
+                        <p class="text-gray-400 mt-0.5">Unpack MCV, parse sidebar UI, execute build loops (Power Plant, Barracks) without memory hooks.</p>
                     </div>
                     
-                    <div class="border-l-2 border-yellow-500 pl-4 py-1">
-                        <h4 class="font-bold text-gray-200">Phase 2: Tactical Visual Recognition</h4>
-                        <p class="text-gray-400 text-xs mt-1">Train custom YOLOv8/11 nano weights on local GPU to identify mobile units, resource fields (ore/gem nodes), and hostile unit vectors across the tactical viewport.</p>
+                    <div class="border-l-2 border-yellow-500 pl-3 py-1">
+                        <span class="text-white font-bold">PHASE 2: Tactical Visual Recognition</span>
+                        <p class="text-gray-400 mt-0.5">Train custom YOLO nano weights on local RTX 4060 for unit vectors and ore/gem resource nodes.</p>
                     </div>
 
-                    <div class="border-l-2 border-green-500 pl-4 py-1">
-                        <h4 class="font-bold text-gray-200">Phase 3: Online Human Benchmark & Model Capability Loop</h4>
-                        <p class="text-gray-400 text-xs mt-1">Deploy bot against online human lobbies to log live combat performance. Collect battle metrics, evaluate response latency under stress, and iteratively update policy decision models.</p>
+                    <div class="border-l-2 border-green-500 pl-3 py-1">
+                        <span class="text-white font-bold">PHASE 3: Online Human Benchmark & Iteration</span>
+                        <p class="text-gray-400 mt-0.5">Deploy against online human lobbies to log live combat telemetry, measure response latency, and evolve model capability.</p>
                     </div>
                 </div>
             </section>
         </div>
 
-        <!-- Column 3: Development Progress & Metrics -->
+        <!-- Right Column: Status & Tracker -->
         <div class="space-y-6">
             
-            <!-- Progress Tracker -->
-            <section class="bg-gray-900/50 p-6 rounded-lg border border-gray-800">
-                <h3 class="text-lg font-bold text-white tracking-wide mb-4">Milestone Tracker</h3>
-                <ul class="space-y-3 font-mono text-xs">
-                    <li class="flex items-center justify-between bg-gray-800/50 p-2.5 rounded border border-green-900/50">
+            <!-- Milestone Checklist -->
+            <section class="bg-gray-950/80 p-6 rounded border border-gray-800">
+                <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4">Milestone Progress</h3>
+                <ul class="space-y-2 text-xs">
+                    <li class="flex justify-between items-center bg-gray-900/50 p-2.5 rounded border border-green-900/30">
                         <span class="text-gray-300">Base Screen Grabber</span>
-                        <span class="text-green-400 font-bold">COMPLETED</span>
+                        <span class="text-green-400 font-bold">[DONE]</span>
                     </li>
-                    <li class="flex items-center justify-between bg-gray-800/50 p-2.5 rounded border border-yellow-900/50">
-                        <span class="text-gray-300">Template Matching Baseline</span>
-                        <span class="text-yellow-400 font-bold">IN PROGRESS</span>
+                    <li class="flex justify-between items-center bg-gray-900/50 p-2.5 rounded border border-yellow-900/30">
+                        <span class="text-gray-300">Template Matching</span>
+                        <span class="text-yellow-400 font-bold">[ACTIVE]</span>
                     </li>
-                    <li class="flex items-center justify-between bg-gray-800/50 p-2.5 rounded border border-gray-700">
-                        <span class="text-gray-400">YOLO Object Detection</span>
-                        <span class="text-gray-500">PENDING</span>
+                    <li class="flex justify-between items-center bg-gray-900/50 p-2.5 rounded border border-gray-800">
+                        <span class="text-gray-500">YOLO Object Detection</span>
+                        <span class="text-gray-600">[PENDING]</span>
                     </li>
-                    <li class="flex items-center justify-between bg-gray-800/50 p-2.5 rounded border border-gray-700">
-                        <span class="text-gray-400">Minimap Radar Parser</span>
-                        <span class="text-gray-500">PENDING</span>
+                    <li class="flex justify-between items-center bg-gray-900/50 p-2.5 rounded border border-gray-800">
+                        <span class="text-gray-500">Minimap Radar Parser</span>
+                        <span class="text-gray-600">[PENDING]</span>
                     </li>
-                    <li class="flex items-center justify-between bg-gray-800/50 p-2.5 rounded border border-gray-700">
-                        <span class="text-gray-400">Online Human Matchmaking</span>
-                        <span class="text-gray-500">PLANNED</span>
+                    <li class="flex justify-between items-center bg-gray-900/50 p-2.5 rounded border border-gray-800">
+                        <span class="text-gray-500">Online Human Match vs AI</span>
+                        <span class="text-gray-600">[PLANNED]</span>
                     </li>
                 </ul>
             </section>
 
-            <!-- Deployment Card -->
-            <section class="bg-gray-900/50 p-6 rounded-lg border border-gray-800">
-                <h3 class="text-md font-bold text-white mb-2">Build & Pipeline Status</h3>
-                <div class="text-xs text-gray-400 space-y-2">
-                    <p><strong>Deployment:</strong> Cloudflare Pages Edge Platform</p>
-                    <p><strong>Source Control:</strong> GitHub Auto-Sync Pipeline</p>
-                    <p><strong>Execution Stack:</strong> Python 3.14 + OpenCV + PyDirectInput</p>
-                </div>
+            <!-- Deployment Specs -->
+            <section class="bg-gray-950/80 p-6 rounded border border-gray-800 text-xs space-y-2">
+                <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-2">Pipeline</h3>
+                <p><strong>Host:</strong> Cloudflare Pages Edge</p>
+                <p><strong>Sync:</strong> GitHub Auto-Pipeline</p>
             </section>
 
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="max-w-6xl mx-auto w-full mt-8 border-t border-gray-800 pt-4 text-center text-xs text-gray-500">
-        <p>RA1 Vision AI Buildout &copy; Under Active Development • Built for OpenRA Platform Performance Tracking</p>
+    <footer class="max-w-6xl mx-auto w-full mt-8 border-t border-gray-900 pt-4 text-center text-[10px] text-gray-600">
+        <p>RA1 VISION AI BUILDOUT // PERFORMANCE TRACKING & MODEL ITERATION CONSOLE</p>
     </footer>
 
 </body>
