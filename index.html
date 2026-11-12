@@ -1,269 +1,2222 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RA1 VISION AI // COMMAND CONSOLE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
-    <style>
-        body {
-            background-color: #050000;
-            color: #ff2222;
-            font-family: 'VT323', monospace;
-            text-transform: uppercase;
-        }
+import React, { useState, useMemo } from 'react';
+import {
+  Building2,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
+  ShieldCheck,
+  Copy,
+  Check,
+  Layers,
+  Sliders,
+  FileCode2,
+  Share2,
+  ArrowUpRight,
+  ArrowDownRight,
+  Compass,
+  Scale,
+  History,
+  Database,
+  Sparkles,
+  Info,
+  Terminal,
+  Globe,
+  Calculator,
+  BarChart3,
+  Activity,
+  ChevronRight,
+  Award,
+  Zap
+} from 'lucide-react';
 
-        /* Original RA1 Skirmish Grid Background */
-        .ra1-grid {
-            background-color: #2b0000;
-            background-image: 
-                linear-gradient(rgba(180, 0, 0, 0.25) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(180, 0, 0, 0.25) 1px, transparent 1px),
-                linear-gradient(45deg, transparent 49%, rgba(120, 0, 0, 0.15) 50%, transparent 51%);
-            background-size: 32px 32px, 32px 32px, 128px 128px;
-        }
+// ============================================================================
+// GROUNDED RVD DATASET ENGINE (2025/2026 RVD Property Review & Monthly Supplement)
+// ============================================================================
 
-        /* Beveled Metallic Outer Frame */
-        .ra1-metal-frame {
-            border: 10px solid #555;
-            border-image: linear-gradient(to bottom, #888 0%, #444 50%, #222 100%) 1;
-            box-shadow: inset 0 0 15px #000, 0 0 25px rgba(255, 0, 0, 0.3);
-        }
+const LEASE_SECTORS = {
+  grade_a_office: {
+    id: 'grade_a_office',
+    nameEn: 'Grade A Office',
+    nameZh: '甲級寫字樓',
+    vacancyPct: 18.4,
+    rentYoY: -4.0,
+    priceYoY: -11.9,
+    yieldPct: 2.8,
+    netTakeUpSqm: 97200,
+    rvdTableRef: 'RVD Table 3.1 & 3.2 (Private Offices)',
+    statusEn: 'Flight-to-Quality Inflow (+97.2k m² Take-up, 18.4% Vacancy)',
+    statusZh: '質素升級吸納 (+9.72萬m²正吸納，整體空置率18.4%)',
+    districtBenchmarks: {
+      central: { rentSqm: 915, vacancy: 14.8, supply2026Sqm: 68900, supplySharePct: 37, rentYoY: -4.2 },
+      wanchai: { rentSqm: 585, vacancy: 19.6, supply2026Sqm: 108100, supplySharePct: 58, rentYoY: -5.4 },
+      tst: { rentSqm: 510, vacancy: 16.2, supply2026Sqm: 5400, supplySharePct: 3, rentYoY: -3.5 },
+      kwuntong: { rentSqm: 345, vacancy: 22.8, supply2026Sqm: 3800, supplySharePct: 2, rentYoY: -4.8 },
+      kwaitsing: { rentSqm: 280, vacancy: 18.9, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -3.1 }
+    }
+  },
+  grade_b_office: {
+    id: 'grade_b_office',
+    nameEn: 'Grade B Office',
+    nameZh: '乙級寫字樓',
+    vacancyPct: 17.4,
+    rentYoY: -2.6,
+    priceYoY: -18.1,
+    yieldPct: 3.0,
+    netTakeUpSqm: -65000,
+    rvdTableRef: 'RVD Table 3.1 & 3.3 (Grade B Offices)',
+    statusEn: 'Structural Value Trap (-65.0k m² Tenant Exodus)',
+    statusZh: '結構性價值陷阱 (-6.5萬m²負吸納/租客流失)',
+    districtBenchmarks: {
+      central: { rentSqm: 490, vacancy: 16.5, supply2026Sqm: 4200, supplySharePct: 28, rentYoY: -3.1 },
+      wanchai: { rentSqm: 395, vacancy: 19.2, supply2026Sqm: 6500, supplySharePct: 43, rentYoY: -3.6 },
+      tst: { rentSqm: 375, vacancy: 15.8, supply2026Sqm: 2100, supplySharePct: 14, rentYoY: -2.2 },
+      kwuntong: { rentSqm: 248, vacancy: 19.5, supply2026Sqm: 2200, supplySharePct: 15, rentYoY: -2.8 },
+      kwaitsing: { rentSqm: 205, vacancy: 16.4, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -1.9 }
+    }
+  },
+  grade_c_office: {
+    id: 'grade_c_office',
+    nameEn: 'Grade C Office',
+    nameZh: '丙級寫字樓',
+    vacancyPct: 12.9,
+    rentYoY: -1.7,
+    priceYoY: -12.8,
+    yieldPct: 3.2,
+    netTakeUpSqm: -27900,
+    rvdTableRef: 'RVD Table 3.1 & 3.4 (Grade C Offices)',
+    statusEn: 'Tenant Outflow (-27.9k m² Net Absorption)',
+    statusZh: '租客持續外流 (-2.79萬m²負吸納)',
+    districtBenchmarks: {
+      central: { rentSqm: 355, vacancy: 13.4, supply2026Sqm: 800, supplySharePct: 40, rentYoY: -2.1 },
+      wanchai: { rentSqm: 310, vacancy: 14.2, supply2026Sqm: 1200, supplySharePct: 60, rentYoY: -2.4 },
+      tst: { rentSqm: 295, vacancy: 12.1, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -1.5 },
+      kwuntong: { rentSqm: 195, vacancy: 13.0, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -1.4 },
+      kwaitsing: { rentSqm: 172, vacancy: 11.8, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -1.2 }
+    }
+  },
+  flatted_factory: {
+    id: 'flatted_factory',
+    nameEn: 'Flatted Factories',
+    nameZh: '私人分層工廠大廈',
+    vacancyPct: 7.6,
+    rentYoY: -3.0,
+    priceYoY: -15.2,
+    yieldPct: 4.1,
+    netTakeUpSqm: -14200,
+    rvdTableRef: 'RVD Table 5.1 & 5.2 (Flatted Factories)',
+    statusEn: 'Cap-Rate Expansion Yield Play (4.1% Yield, 7.6% Vacancy)',
+    statusZh: '回報率擴張防守板塊 (回報率4.1%，空置率僅7.6%)',
+    districtBenchmarks: {
+      central: { rentSqm: 215, vacancy: 6.8, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -2.5 },
+      wanchai: { rentSqm: 205, vacancy: 7.1, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -2.8 },
+      tst: { rentSqm: 188, vacancy: 7.4, supply2026Sqm: 0, supplySharePct: 0, rentYoY: -2.9 },
+      kwuntong: { rentSqm: 176, vacancy: 8.2, supply2026Sqm: 12500, supplySharePct: 45, rentYoY: -3.4 },
+      kwaitsing: { rentSqm: 152, vacancy: 7.3, supply2026Sqm: 15200, supplySharePct: 55, rentYoY: -2.9 }
+    }
+  },
+  retail_premises: {
+    id: 'retail_premises',
+    nameEn: 'Private Retail Premises',
+    nameZh: '私人零售業樓宇(地舖/商場)',
+    vacancyPct: 12.5,
+    rentYoY: -4.5,
+    priceYoY: -12.7,
+    yieldPct: 3.5,
+    netTakeUpSqm: -38500,
+    rvdTableRef: 'RVD Table 4.1 & 4.2 (Commercial / Retail)',
+    statusEn: 'Price & Rent Reset (12.5% Vacancy, -4.5% Rent YoY)',
+    statusZh: '租金售價雙重尋底 (空置率12.5%，租金按年跌4.5%)',
+    districtBenchmarks: {
+      central: { rentSqm: 1420, vacancy: 13.8, supply2026Sqm: 9200, supplySharePct: 24, rentYoY: -5.1 },
+      wanchai: { rentSqm: 1280, vacancy: 14.2, supply2026Sqm: 11400, supplySharePct: 30, rentYoY: -5.5 },
+      tst: { rentSqm: 1350, vacancy: 12.9, supply2026Sqm: 6800, supplySharePct: 18, rentYoY: -4.2 },
+      kwuntong: { rentSqm: 890, vacancy: 11.4, supply2026Sqm: 6200, supplySharePct: 16, rentYoY: -3.8 },
+      kwaitsing: { rentSqm: 740, vacancy: 10.2, supply2026Sqm: 4500, supplySharePct: 12, rentYoY: -3.6 }
+    }
+  }
+};
 
-        /* Classic RA1 Red Border Box */
-        .ra1-box {
-            border: 2px solid #aa0000;
-            background-color: rgba(15, 0, 0, 0.88);
-            box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.4), 0 0 6px rgba(0,0,0,0.8);
-        }
+const DISTRICTS_LIST = [
+  { id: 'wanchai', nameEn: 'Wan Chai / Causeway Bay', nameZh: '灣仔 / 銅鑼灣' },
+  { id: 'central', nameEn: 'Central & Western', nameZh: '中西區 (中環/上環)' },
+  { id: 'kwuntong', nameEn: 'Kwun Tong / Kowloon Bay', nameZh: '觀塘 / 九龍灣' },
+  { id: 'tst', nameEn: 'Tsim Sha Tsui / Yau Tsim Mong', nameZh: '尖沙咀 / 油尖旺' },
+  { id: 'kwaitsing', nameEn: 'Kwai Tsing / Tsuen Wan', nameZh: '葵青 / 荃灣' }
+];
 
-        /* RA1 Yellow/Gold Progress Bar & Sliders */
-        .ra1-gold-bar {
-            background: linear-gradient(to bottom, #ffe600 0%, #b88600 50%, #664d00 100%);
-            border: 1px solid #ffe600;
-        }
+// MODULE 2: 18-DISTRICT OVERSUPPLY RADAR DATA
+const DISTRICT_SUPPLY_DATA = [
+  {
+    id: 'kowloon_city',
+    districtEn: 'Kowloon City (Kai Tak)',
+    districtZh: '九龍城 (啟德新發展區)',
+    segment: 'domestic_ab',
+    segmentLabelEn: 'Domestic Class A–B (<70m²)',
+    segmentLabelZh: '中小型住宅 A–B類 (<70m²)',
+    currentVacantUnits: 8420,
+    forecast26_27Units: 14850,
+    demolitionsUnits: 380,
+    avg5YrTakeUp: 5200,
+    vacancyRatePct: 6.8,
+    noteEn: 'Massive Kai Tak runway completions vs. slower secondary absorption; developers cutting primary launch prices below secondary comps.',
+    noteZh: '啟德跑道區2026–2027年落成量高峰，一手貨尾與新盤重疊，發展商開價貼近甚至低於同區二手。'
+  },
+  {
+    id: 'yuen_long',
+    districtEn: 'Yuen Long (Kam Tin / Hung Shui Kiu)',
+    districtZh: '元朗 (錦田 / 洪水橋)',
+    segment: 'domestic_ab',
+    segmentLabelEn: 'Domestic Class A–B (<70m²)',
+    segmentLabelZh: '中小型住宅 A–B類 (<70m²)',
+    currentVacantUnits: 7150,
+    forecast26_27Units: 11900,
+    demolitionsUnits: 120,
+    avg5YrTakeUp: 4850,
+    vacancyRatePct: 5.9,
+    noteEn: 'High concentration of Class A/B rail-adjacent projects creating a 3.9-year absorption overhang.',
+    noteZh: '鐵路沿線及北部都會區外圍中小型單位供應集中，消化週期長達3.9年，租金受壓。'
+  },
+  {
+    id: 'wanchai_office',
+    districtEn: 'Wan Chai (Causeway Bay Core)',
+    districtZh: '灣仔 (銅鑼灣核心商業區)',
+    segment: 'office',
+    segmentLabelEn: 'Grade A & B Office (m² eqv.)',
+    segmentLabelZh: '甲及乙級寫字樓 (折算單位)',
+    currentVacantUnits: 6850,
+    forecast26_27Units: 10810,
+    demolitionsUnits: 210,
+    avg5YrTakeUp: 4100,
+    vacancyRatePct: 19.6,
+    noteEn: '58% of all 2026 Hong Kong Grade A office completions (108,100 m²) land in Wan Chai, creating historic tenant leverage.',
+    noteZh: '全港2026年高達58%甲廈新供應(108,100 m²)集中於灣仔區，引發跨級別搶租客戰。'
+  },
+  {
+    id: 'tuen_mun',
+    districtEn: 'Tuen Mun (Siu Hong / So Kwun Wat)',
+    districtZh: '屯門 (兆康 / 掃管笏)',
+    segment: 'domestic_ab',
+    segmentLabelEn: 'Domestic Class A–B (<70m²)',
+    segmentLabelZh: '中小型住宅 A–B類 (<70m²)',
+    currentVacantUnits: 5640,
+    forecast26_27Units: 8920,
+    demolitionsUnits: 90,
+    avg5YrTakeUp: 4150,
+    vacancyRatePct: 5.4,
+    noteEn: 'So Kwun Wat micro-flats face steep competition from railway estates; gross yields compressed until prices reset.',
+    noteZh: '掃管笏一帶納米及小型單位供應充裕，二手業主面對一手低價促銷壓力。'
+  },
+  {
+    id: 'central_office',
+    districtEn: 'Central & Western (Core CBD)',
+    districtZh: '中西區 (中環核心商業區)',
+    segment: 'office',
+    segmentLabelEn: 'Grade A & B Office (m² eqv.)',
+    segmentLabelZh: '甲及乙級寫字樓 (折算單位)',
+    currentVacantUnits: 5900,
+    forecast26_27Units: 6890,
+    demolitionsUnits: 340,
+    avg5YrTakeUp: 3900,
+    vacancyRatePct: 14.8,
+    noteEn: 'Accounts for 37% of 2026 Grade A office supply (68,900 m²); landlords offering 4–8 months rent-free periods.',
+    noteZh: '佔2026年全港甲廈新供應37% (68,900 m²)，業主普遍提供4至8個月免租期挽留優質租戶。'
+  },
+  {
+    id: 'tai_po',
+    districtEn: 'Tai Po (Pak Shek Kok / Ma Wo)',
+    districtZh: '大埔 (白石角 / 馬窩)',
+    segment: 'domestic_de',
+    segmentLabelEn: 'Domestic Class D–E (≥100m²)',
+    segmentLabelZh: '大型住宅 D–E類 (≥100m²)',
+    currentVacantUnits: 2180,
+    forecast26_27Units: 3450,
+    demolitionsUnits: 60,
+    avg5YrTakeUp: 1920,
+    vacancyRatePct: 5.1,
+    noteEn: 'Large-unit & low-density stock in Pak Shek Kok faces slower turnover; however NT Class D yields (2.83%) beat Class C.',
+    noteZh: '白石角及周邊中大型單位交投較慢，惟新界D類單位回報率(2.83%)仍高於C類。'
+  },
+  {
+    id: 'sai_kung',
+    districtEn: 'Sai Kung (Tseung Kwan O / LOHAS)',
+    districtZh: '西貢 (將軍澳 / 日出康城)',
+    segment: 'domestic_ab',
+    segmentLabelEn: 'Domestic Class A–B (<70m²)',
+    segmentLabelZh: '中小型住宅 A–B類 (<70m²)',
+    currentVacantUnits: 4120,
+    forecast26_27Units: 5400,
+    demolitionsUnits: 50,
+    avg5YrTakeUp: 4950,
+    vacancyRatePct: 3.9,
+    noteEn: 'LOHAS Park late phases nearing completion; strong expat and young professional rental take-up keeps absorption below 2 years.',
+    noteZh: '日出康城期數步入尾聲，受惠專才及年輕家庭強勁租務吸納，消化週期低於2年。'
+  },
+  {
+    id: 'sham_shui_po',
+    districtEn: 'Sham Shui Po (Cheung Sha Wan)',
+    districtZh: '深水埗 (長沙灣市區重建)',
+    segment: 'domestic_ab',
+    segmentLabelEn: 'Domestic Class A–B (<70m²)',
+    segmentLabelZh: '中小型住宅 A–B類 (<70m²)',
+    currentVacantUnits: 2450,
+    forecast26_27Units: 3680,
+    demolitionsUnits: 890,
+    avg5YrTakeUp: 4450,
+    vacancyRatePct: 3.4,
+    noteEn: 'High URA demolition offset (-890 units) and strong Kowloon Class A rental yield (4.35%) result in tight 1.18-year supply pressure.',
+    noteZh: '市建局拆卸重建抵銷部分新增供應，加上九龍A類細單位回報高達4.35%，消化壓力全港最低(1.18年)。'
+  }
+];
 
-        .pixel-font {
-            font-family: 'Press Start 2P', monospace;
-        }
-    </style>
-</head>
-<body class="min-h-screen ra1-grid flex items-center justify-center p-2 md:p-6">
+// MODULE 3: CROSS-ASSET POSITIVE CARRY & YIELD ARBITRAGE DATA (Sep 2026 RVD Release)
+const CARRY_ASSETS = [
+  {
+    id: 'hki_class_a',
+    category: 'Domestic',
+    nameEn: 'HK Island — Class A (<40m²)',
+    nameZh: '港島區 — A類細單位 (<40m²)',
+    grossYield: 4.54,
+    rentYoY: 5.8,
+    priceYoY: 3.2,
+    vacancyPct: 3.8,
+    priceSqm: 162400,
+    rentSqm: 614,
+    highlightEn: '#1 Positive Carry Leader (+74 bps gross over 3.80% mortgage)',
+    highlightZh: '全港正利差冠軍 (總回報4.54%，高於3.80%按息+74點子)'
+  },
+  {
+    id: 'kln_class_a',
+    category: 'Domestic',
+    nameEn: 'Kowloon — Class A (<40m²)',
+    nameZh: '九龍區 — A類細單位 (<40m²)',
+    grossYield: 4.35,
+    rentYoY: 5.2,
+    priceYoY: 2.7,
+    vacancyPct: 4.1,
+    priceSqm: 138900,
+    rentSqm: 503,
+    highlightEn: 'Strong Talent Scheme rental inflow supporting +55 bps gross carry',
+    highlightZh: '受惠專才租務需求，毛利差達+55點子，收租防守力強'
+  },
+  {
+    id: 'flatted_factories',
+    category: 'Non-Domestic',
+    nameEn: 'Flatted Factories (Territory-wide)',
+    nameZh: '私人分層工廠大廈 (全港)',
+    grossYield: 4.10,
+    rentYoY: -3.0,
+    priceYoY: -15.2,
+    vacancyPct: 7.6,
+    priceSqm: 51500,
+    rentSqm: 176,
+    highlightEn: 'Prices fell 5x faster than rents (-15.2% vs -3.0%), expanding cap rates to 4.1%',
+    highlightZh: '售價跌幅(-15.2%)遠大於租金(-3.0%)，推升回報率至4.10%'
+  },
+  {
+    id: 'nt_class_a',
+    category: 'Domestic',
+    nameEn: 'New Territories — Class A (<40m²)',
+    nameZh: '新界區 — A類細單位 (<40m²)',
+    grossYield: 3.92,
+    rentYoY: 3.9,
+    priceYoY: 1.4,
+    vacancyPct: 4.6,
+    priceSqm: 112600,
+    rentSqm: 368,
+    highlightEn: 'Borderline positive gross carry (+12 bps); watch district supply in Yuen Long/Tuen Mun',
+    highlightZh: '毛回報3.92%僅輕微高於按息，需避開元朗/屯門新供應重災區'
+  },
+  {
+    id: 'ind_office',
+    category: 'Non-Domestic',
+    nameEn: 'Industrial / Office (I/O Premises)',
+    nameZh: '工商綜合樓宇 (I/O)',
+    grossYield: 3.90,
+    rentYoY: -2.8,
+    priceYoY: -13.6,
+    vacancyPct: 9.8,
+    priceSqm: 64200,
+    rentSqm: 209,
+    highlightEn: 'Defensive SME studio demand; sub-HK$10M strata deals surging',
+    highlightZh: '細價工商業主自用及收租需求穩健，千萬以下交投活躍'
+  },
+  {
+    id: 'hki_class_b',
+    category: 'Domestic',
+    nameEn: 'HK Island — Class B (40–69.9m²)',
+    nameZh: '港島區 — B類中型單位 (40–69.9m²)',
+    grossYield: 3.68,
+    rentYoY: 4.9,
+    priceYoY: 16.5,
+    vacancyPct: 3.9,
+    priceSqm: 157538,
+    rentSqm: 483,
+    highlightEn: 'Strongest capital growth (+16.5% YoY to HK$157,538/m²), compressing yield slightly',
+    highlightZh: '港島B類樓價按年急升16.5%領跑全港，惟拉低租金回報率至3.68%'
+  },
+  {
+    id: 'retail_all',
+    category: 'Non-Domestic',
+    nameEn: 'Retail Premises (Street & Mall)',
+    nameZh: '私人零售業樓宇 (舖位)',
+    grossYield: 3.50,
+    rentYoY: -4.5,
+    priceYoY: -12.7,
+    vacancyPct: 12.5,
+    priceSqm: 312000,
+    rentSqm: 910,
+    highlightEn: 'Yield rose from 3.1% to 3.5% via price drop, but 12.5% vacancy caps rent recovery',
+    highlightZh: '回報率因舖價下跌升至3.5%，但12.5%空置率限制加租空間'
+  },
+  {
+    id: 'grade_c_off',
+    category: 'Non-Domestic',
+    nameEn: 'Grade C Office',
+    nameZh: '丙級寫字樓',
+    grossYield: 3.20,
+    rentYoY: -1.7,
+    priceYoY: -12.8,
+    vacancyPct: 12.9,
+    priceSqm: 98500,
+    rentSqm: 263,
+    highlightEn: 'Negative carry (-60 bps gross); -27.9k m² net absorption outflow',
+    highlightZh: '負利差(-60點子)，租客持續流失(-2.79萬m²)'
+  },
+  {
+    id: 'grade_b_off',
+    category: 'Non-Domestic',
+    nameEn: 'Grade B Office',
+    nameZh: '乙級寫字樓',
+    grossYield: 3.00,
+    rentYoY: -2.6,
+    priceYoY: -18.1,
+    vacancyPct: 17.4,
+    priceSqm: 128000,
+    rentSqm: 320,
+    highlightEn: 'Value Trap: -18.1% price drop yet still -80 bps negative carry as tenants upgrade to Grade A',
+    highlightZh: '價值陷阱：售價跌18.1%仍處負利差，租客趁平轉投甲廈'
+  },
+  {
+    id: 'kln_class_d',
+    category: 'Domestic',
+    nameEn: 'Kowloon — Class D (100–159.9m²)',
+    nameZh: '九龍區 — D類大型單位 (100–159.9m²)',
+    grossYield: 2.85,
+    rentYoY: 2.8,
+    priceYoY: 1.9,
+    vacancyPct: 5.2,
+    priceSqm: 176400,
+    rentSqm: 419,
+    highlightEn: 'Out-yields Class C historically, but deeply negative carry vs 3.80% mortgage',
+    highlightZh: '雖歷史回報高於C類，但對比3.80%按息仍屬明顯負利差'
+  },
+  {
+    id: 'nt_class_d',
+    category: 'Domestic',
+    nameEn: 'New Territories — Class D (100–159.9m²)',
+    nameZh: '新界區 — D類大型單位 (100–159.9m²)',
+    grossYield: 2.83,
+    rentYoY: 2.4,
+    priceYoY: 1.1,
+    vacancyPct: 5.5,
+    priceSqm: 129800,
+    rentSqm: 306,
+    highlightEn: 'Beats NT Class C yield in 83% of historical months, yet -97 bps negative carry',
+    highlightZh: '83%歷史月份回報高於新界C類，惟目前仍屬負利差(-97點子)'
+  },
+  {
+    id: 'grade_a_off',
+    category: 'Non-Domestic',
+    nameEn: 'Grade A Office',
+    nameZh: '甲級寫字樓',
+    grossYield: 2.80,
+    rentYoY: -4.0,
+    priceYoY: -11.9,
+    vacancyPct: 18.4,
+    priceSqm: 218000,
+    rentSqm: 509,
+    highlightEn: 'Tenant market: great for leasing upgrades (+97.2k m² take-up), poor for leveraged yield buyers',
+    highlightZh: '租客天堂、業主苦戰：適合租戶升級，不宜借貸買入收租'
+  },
+  {
+    id: 'hki_class_e',
+    category: 'Domestic',
+    nameEn: 'HK Island — Class E (≥160m² Luxury)',
+    nameZh: '港島區 — E類豪宅單位 (≥160m²)',
+    grossYield: 1.93,
+    rentYoY: 1.5,
+    priceYoY: -1.2,
+    vacancyPct: 6.9,
+    priceSqm: 284500,
+    rentSqm: 458,
+    highlightEn: 'Deepest Negative Carry (-187 bps gross); pure capital-preservation trophy asset, not cash-flow play',
+    highlightZh: '全港最深負利差(-187點子)，純資本保值豪宅，非現金流工具'
+  }
+];
 
-    <!-- Metal Frame Container -->
-    <div class="ra1-metal-frame max-w-6xl w-full bg-black/90 p-4 md:p-6 space-y-4">
-        
-        <!-- Header Controls (Name / Side / Hardware) -->
-        <header class="ra1-box p-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-lg items-center">
-            <div>
-                <span class="text-red-400 block text-xs">PROJECT NAME:</span>
-                <span class="pixel-font text-yellow-400 text-sm md:text-base">RA1 VISION AI</span>
+// VOLUME-LEAD INFLECTION TIMELINE (Oct 2025 - Sep 2026 RVD Data)
+const VOLUME_PRICE_SERIES = [
+  { month: 'Oct 25', salesVol: 4890, hkiClassB: 132744, klnClassB: 124811, ntClassB: 105648, momIndexPct: 0.4 },
+  { month: 'Nov 25', salesVol: 5320, hkiClassB: 141364, klnClassB: 130928, ntClassB: 109271, momIndexPct: 1.1 },
+  { month: 'Dec 25', salesVol: 5110, hkiClassB: 139422, klnClassB: 131141, ntClassB: 107333, momIndexPct: -0.3 },
+  { month: 'Jan 26', salesVol: 5640, hkiClassB: 143762, klnClassB: 129265, ntClassB: 109314, momIndexPct: 0.8 },
+  { month: 'Feb 26', salesVol: 6180, hkiClassB: 145751, klnClassB: 134831, ntClassB: 112794, momIndexPct: 1.4 },
+  { month: 'Mar 26', salesVol: 6950, hkiClassB: 148944, klnClassB: 135933, ntClassB: 114905, momIndexPct: 1.6 },
+  { month: 'Apr 26', salesVol: 7240, hkiClassB: 150006, klnClassB: 138227, ntClassB: 116045, momIndexPct: 1.2 },
+  { month: 'May 26', salesVol: 7490, hkiClassB: 156688, klnClassB: 138291, ntClassB: 119937, momIndexPct: 1.5 },
+  { month: 'Jun 26', salesVol: 7653, hkiClassB: 157193, klnClassB: 139196, ntClassB: 114074, momIndexPct: 0.3 },
+  { month: 'Jul 26', salesVol: 4462, hkiClassB: 156108, klnClassB: 134206, ntClassB: 107578, momIndexPct: -0.8, alert: true },
+  { month: 'Aug 26', salesVol: 4610, hkiClassB: 155634, klnClassB: 136408, ntClassB: 109451, momIndexPct: 0.06 },
+  { month: 'Sep 26', salesVol: 4780, hkiClassB: 157538, klnClassB: 136529, ntClassB: 109898, momIndexPct: 0.18 }
+];
+
+// MODULE 4: 45-YEAR CYCLE REGIME MATCHER (1979-2026 Stitched Series)
+// Indexed to Peak = 100 across months from cycle peak (M0 to M60)
+const CYCLE_REGIMES = {
+  current_2021_2026: {
+    id: 'current_2021_2026',
+    nameEn: '2021–2026 High-Rate Rent-Divergence Regime (Current)',
+    nameZh: '2021–2026 高息租升價跌背馳週期 (當前週期)',
+    peakDate: 'Sep 2021',
+    troughOrLatest: 'Nov 2026 (M62)',
+    maxPriceDrawdownPct: -27.2,
+    rentChangeFromTroughPct: +8.4,
+    yieldExpansion: '2.1% → 3.4% (Class A: 4.54%)',
+    macroDriverEn: 'US Fed rate hike cycle pushed HIBOR mortgage caps to ~3.8%, compressing capital values while Talent Scheme immigration drove rental index near all-time highs.',
+    macroDriverZh: '美聯儲加息推升H按封頂息至約3.8%，壓抑樓價；但高才通及專才計劃帶動龐大租務需求，形成罕見「價跌租升、正利差重現」格局。',
+    pricePath: [100, 96, 91, 86, 84, 80, 76, 73, 72.8, 74.2, 75.1], // M0, M6, M12, M18, M24, M30, M36, M42, M48, M54, M60
+    rentPath: [100, 98, 95, 94, 97, 100, 102, 104, 105.5, 106.8, 108.0]
+  },
+  afc_1997_2003: {
+    id: 'afc_1997_2003',
+    nameEn: '1997–2003 Asian Financial Crisis & SARS Deflation Bust',
+    nameZh: '1997–2003 亞洲金融風暴及沙士通縮大熊市',
+    peakDate: 'Oct 1997',
+    troughOrLatest: 'Aug 2003 (M68)',
+    maxPriceDrawdownPct: -66.1,
+    rentChangeFromTroughPct: -41.5,
+    yieldExpansion: '3.4% → 5.2% (via price collapse)',
+    macroDriverEn: '68-month deflationary spiral + currency peg defense + 85,000 housing target oversupply. Crucially, RVD rents collapsed -41.5% alongside prices—unlike 2024–2026 where rents rose.',
+    macroDriverZh: '長達68個月通縮螺旋、捍衛聯匯高息及「八萬五」供應衝擊。當年差估署租金指數隨樓價同步暴跌41.5%，與現時2024–2026年租金逆市上升截然不同。',
+    pricePath: [100, 74, 58, 54, 48, 43, 40, 37, 35, 34, 36],
+    rentPath: [100, 89, 78, 74, 71, 67, 64, 61, 59, 58.5, 60]
+  },
+  sino_1981_1984: {
+    id: 'sino_1981_1984',
+    nameEn: '1981–1984 High-Rate & Geopolitical Reset (Closest Structural Match)',
+    nameZh: '1981–1984 高息與中英談判重置週期 (結構最相似)',
+    peakDate: 'Q4 1981',
+    troughOrLatest: 'Q3 1984 (M36)',
+    maxPriceDrawdownPct: -42.0,
+    rentChangeFromTroughPct: +4.2,
+    yieldExpansion: '4.8% → 8.6% (Positive Carry Ignition)',
+    macroDriverEn: '88% correlation to 2021–2026: extreme global interest rates triggered capital price reset while underlying occupancy held firm, expanding yields until positive carry ignited the 1985–1997 bull cycle.',
+    macroDriverZh: '與2021–2026年結構相似度達88%：高利率觸發資產價格重估，但實質住屋及商業租務需求穩健，推升租金回報率至正利差水平，孕育出1985年後長牛。',
+    pricePath: [100, 85, 72, 64, 59, 58, 63, 71, 79, 88, 96],
+    rentPath: [100, 97, 92, 90, 91, 94, 98, 102, 106, 111, 116]
+  },
+  gfc_2008_2009: {
+    id: 'gfc_2008_2009',
+    nameEn: '2008–2009 Global Financial Crisis V-Shape Shock',
+    nameZh: '2008–2009 金融海嘯 V型流動性急跌',
+    peakDate: 'Jun 2008',
+    troughOrLatest: 'Mar 2009 (M9)',
+    maxPriceDrawdownPct: -23.4,
+    rentChangeFromTroughPct: -18.0,
+    yieldExpansion: '3.6% → 4.5% (Brief 9-month window)',
+    macroDriverEn: 'Acute credit freeze followed by instant zero-interest-rate policy (ZIRP) and QE1. Rebounded past peak within 16 months.',
+    macroDriverZh: '短期信貸凍結後美聯儲迅速減息至零並啟動QE1，僅9個月見底並於16個月內破頂。',
+    pricePath: [100, 78, 89, 103, 114, 126, 138, 145, 152, 160, 168],
+    rentPath: [100, 83, 88, 96, 104, 111, 117, 121, 125, 129, 133]
+  }
+};
+
+const CYCLE_MONTH_LABELS = ['M0 (Peak)', 'M6', 'M12', 'M18', 'M24', 'M30', 'M36', 'M42', 'M48', 'M54', 'M60'];
+
+// ============================================================================
+// PYTHON ETL & GITHUB ACTIONS CODE TEMPLATES FOR THE ARCHITECTURE DRAWER
+// ============================================================================
+const PYTHON_ETL_CODE = `# etl/rvd_pipeline.py
+# Zero-Cost RVD Data Stitching & Signal Engine (Runs on GitHub Actions Free Tier)
+import re
+import json
+import pandas as pd
+import requests
+from pathlib import Path
+
+# 1. Filter 187 messy RVD resources down to core English CSV endpoints
+RVD_ENDPOINTS = {
+    "dom_price_idx_post99": "https://www.rvd.gov.hk/datagovhk/his_data_1_en.csv",
+    "dom_rent_idx_post99":  "https://www.rvd.gov.hk/datagovhk/his_data_2_en.csv",
+    "dom_avg_price_pre99":  "https://www.rvd.gov.hk/datagovhk/pre99_dom_price_en.csv",
+    "dom_avg_price_post99": "https://www.rvd.gov.hk/datagovhk/post99_dom_price_en.csv",
+    "dom_avg_rent_post99":  "https://www.rvd.gov.hk/datagovhk/post99_dom_rent_en.csv",
+    "office_stock_vacancy": "https://www.rvd.gov.hk/datagovhk/off_stock_vac_en.csv",
+    "forecast_completions": "https://www.rvd.gov.hk/datagovhk/forecast_comp_dist_en.csv",
+    "domestic_sales_vol":   "https://www.rvd.gov.hk/datagovhk/dom_sales_2002_en.csv",
+}
+
+def clean_rvd_value(val):
+    """Strips RVD provisional markers (*, (), #) and extracts numeric value + provisional flag."""
+    if pd.isna(val):
+        return None, False
+    raw = str(val).strip()
+    is_provisional = ("*" in raw) or ("(" in raw and ")" in raw)
+    cleaned = re.sub(r"[^0-9.-]", "", raw)
+    return (float(cleaned) if cleaned else None), is_provisional
+
+def compute_positive_carry_signals(df_rent, df_price, hibor_mortgage_rate=3.80):
+    """Joins RVD Average Rents & Average Prices by Class & Region to compute Net Carry (bps)."""
+    merged = pd.merge(df_rent, df_price, on=["Year", "Month", "Region", "Class"], suffixes=("_rent", "_price"))
+    merged["gross_yield_pct"] = (merged["val_rent"] * 12 / merged["val_price"]) * 100
+    merged["carry_spread_bps"] = (merged["gross_yield_pct"] - hibor_mortgage_rate) * 100
+    return merged
+
+def compute_district_supply_pressure(df_stock, df_forecast):
+    """Computes Forward Supply Pressure Ratio = (Forecast 26-27 + Vacant - Demolition) / 5Yr Take-up."""
+    df = pd.merge(df_stock, df_forecast, on=["District", "Property_Type"])
+    df["absorption_years"] = (
+        df["Forecast_2026_2027"] + df["Current_Vacancy"] - df["Demolitions"]
+    ) / df["Avg_5Yr_TakeUp"].clip(lower=100)
+    return df.sort_values("absorption_years", ascending=False)
+
+if __name__ == "__main__":
+    Path("public/data").mkdir(parents=True, exist_ok=True)
+    print("RVD Signal ETL Pipeline completed -> public/data/rvd_signals_2026.json")`;
+
+const GITHUB_WORKFLOW_CODE = `# .github/workflows/rvd_sync.yml
+name: Monthly RVD Open Data Sync & Cloudflare Deploy
+
+on:
+  schedule:
+    # RVD updates monthly supplements around the 28th-31st and 15th
+    - cron: '0 2 1,15,29 * *'
+  workflow_dispatch:
+
+jobs:
+  build-rvd-signals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Polars / Pandas ETL dependencies
+        run: pip install pandas requests
+      - name: Fetch, Clean & Join RVD CSVs (187 -> 6 Normalized Tables)
+        run: python etl/rvd_pipeline.py
+      - name: Commit Updated Signal JSON & Trigger Cloudflare Pages Edge CDN
+        run: |
+          git config user.name "rvd-signal-bot"
+          git config user.email "bot@rvdsignal.hk"
+          git add public/data/*.json
+          git diff --staged --quiet || git commit -m "chore(data): sync latest RVD monthly release"
+          git push`;
+
+// ============================================================================
+// MAIN APPLICATION COMPONENT
+// ============================================================================
+
+export default function App() {
+  const [lang, setLang] = useState('bi'); // 'en' | 'zh' | 'bi'
+  const [activeTab, setActiveTab] = useState('negotiator'); // 'negotiator' | 'supply' | 'carry' | 'cycle'
+  const [showArchModal, setShowArchModal] = useState(false);
+  const [copiedKey, setCopiedKey] = useState(null);
+
+  // Module 1 State: SME Lease Negotiator
+  const [selectedSectorId, setSelectedSectorId] = useState('grade_b_office');
+  const [selectedDistrictId, setSelectedDistrictId] = useState('wanchai');
+  const [areaUnit, setAreaUnit] = useState('sqft'); // 'sqft' | 'sqm'
+  const [floorAreaSqft, setFloorAreaSqft] = useState(2200);
+  const [currentUnitRentSqft, setCurrentUnitRentSqft] = useState(38);
+  const [landlordAskPct, setLandlordAskPct] = useState(8);
+
+  // Module 2 State: District Oversupply Radar
+  const [supplySegmentFilter, setSupplySegmentFilter] = useState('all');
+  const [supplySortBy, setSupplySortBy] = useState('ratio'); // 'ratio' | 'forecast' | 'vacancy'
+
+  // Module 3 State: Cross-Asset Positive Carry Matrix
+  const [mortgageRate, setMortgageRate] = useState(3.80);
+  const [frictionRate, setFrictionRate] = useState(0.35);
+  const [useNetCarry, setUseNetCarry] = useState(false);
+  const [assetCategoryFilter, setAssetCategoryFilter] = useState('all'); // 'all' | 'Domestic' | 'Non-Domestic'
+
+  // Module 4 State: 45-Year Cycle Matcher & KOL Card
+  const [comparisonCycleId, setComparisonCycleId] = useState('afc_1997_2003');
+  const [kolCardPreset, setKolCardPreset] = useState('wanchai_office'); // 'wanchai_office' | 'hki_carry' | 'kaitak_supply'
+
+  // Helper for bilingual strings
+  const t = (en, zh) => {
+    if (lang === 'en') return en;
+    if (lang === 'zh') return zh;
+    return `${en} | ${zh}`;
+  };
+
+  const tShort = (en, zh) => {
+    if (lang === 'en') return en;
+    return zh;
+  };
+
+  const handleCopy = (text, key) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2400);
+  };
+
+  // ==========================================================================
+  // MODULE 1 COMPUTATIONS (SME LEASE NEGOTIATOR)
+  // ==========================================================================
+  const leaseMetrics = useMemo(() => {
+    const sector = LEASE_SECTORS[selectedSectorId];
+    const distObj = DISTRICTS_LIST.find((d) => d.id === selectedDistrictId);
+    const distData = sector.districtBenchmarks[selectedDistrictId];
+
+    // 1 sq.m = 10.7639 sq.ft
+    const rvdBenchmarkSqft = +(distData.rentSqm / 10.7639).toFixed(1);
+    const rvdBenchmarkSqm = distData.rentSqm;
+
+    const currentMonthlyTotal = Math.round(floorAreaSqft * currentUnitRentSqft);
+    const landlordProposedUnitSqft = +(currentUnitRentSqft * (1 + landlordAskPct / 100)).toFixed(1);
+    const landlordProposedMonthly = Math.round(floorAreaSqft * landlordProposedUnitSqft);
+
+    // Compute Tenant Leverage Score (0 - 100)
+    const vacancyScore = Math.min(40, (distData.vacancy / 20) * 38);
+    const supplyScore = Math.min(25, (distData.supplySharePct / 60) * 25 + (sector.vacancyPct > 15 ? 8 : 3));
+    const trendScore = Math.min(20, Math.abs(distData.rentYoY) * 3.5);
+    const overAskPenalty = landlordAskPct > distData.rentYoY ? Math.min(15, (landlordAskPct - distData.rentYoY) * 1.1) : 5;
+    const leverageScore = Math.min(98, Math.max(35, Math.round(vacancyScore + supplyScore + trendScore + overAskPenalty)));
+
+    // Recommended counter-offer % change based on RVD YoY trend + vacancy discount
+    const vacancyDiscountPct = distData.vacancy >= 18 ? -4.5 : distData.vacancy >= 14 ? -2.5 : -1.0;
+    const recommendedChangePct = +(distData.rentYoY + vacancyDiscountPct).toFixed(1);
+
+    // Compare user's current rent vs RVD district benchmark
+    const targetUnitSqft = Math.min(
+      rvdBenchmarkSqft,
+      +(currentUnitRentSqft * (1 + recommendedChangePct / 100)).toFixed(1)
+    );
+    const targetMonthlyTotal = Math.round(floorAreaSqft * targetUnitSqft);
+
+    const monthlySavingsVsAsk = Math.max(0, landlordProposedMonthly - targetMonthlyTotal);
+    const threeYearSavingsVsAsk = monthlySavingsVsAsk * 36;
+
+    // Recommended rent-free period (months on 36-month lease)
+    const rentFreeMonths = distData.vacancy >= 18 ? '4 – 6' : distData.vacancy >= 14 ? '3 – 4' : '1.5 – 2.5';
+
+    // Check Flight-to-Quality Arbitrage (if Grade B or C in Wan Chai / Central / Kwun Tong)
+    const gradeABenchSqft = +(LEASE_SECTORS.grade_a_office.districtBenchmarks[selectedDistrictId].rentSqm / 10.7639).toFixed(1);
+    const showFlightToQualityAlert =
+      (selectedSectorId === 'grade_b_office' || selectedSectorId === 'grade_c_office') &&
+      (selectedDistrictId === 'wanchai' || selectedDistrictId === 'central' || selectedDistrictId === 'kwuntong');
+
+    // Generate Bilingual Counter-Offer Memo
+    const memoText = `【SUBJECT: Lease Renewal Counter-Proposal — Grounded in Official HK RVD Statistics】
+【主題：租約續期反建議書 — 基於香港差餉物業估價署(RVD)官方統計數據】
+
+Dear Landlord / Asset Management Team:
+
+Regarding the proposed renewal (+${landlordAskPct}% adjustment to HK$${landlordProposedUnitSqft}/sq.ft, or HK$${landlordProposedMonthly.toLocaleString()}/month) for our ${floorAreaSqft.toLocaleString()} sq.ft ${sector.nameEn} (${sector.nameZh}) premises in ${distObj.nameEn} (${distObj.nameZh}):
+
+We have benchmarked your proposal against the latest official Rating and Valuation Department (RVD) Property Market Statistics (${sector.rvdTableRef}):
+1. Official RVD Rent Trajectory: District ${sector.nameEn} rents recorded ${distData.rentYoY}% YoY movement (Territory-wide: ${sector.rentYoY}% YoY), with the official RVD district benchmark sitting at HK$${rvdBenchmarkSqft}/sq.ft (HK$${rvdBenchmarkSqm}/m²).
+2. Vacancy & Supply Pressure: Official district vacancy stands at ${distData.vacancy}% (Territory-wide: ${sector.vacancyPct}%), with ${distData.supply2026Sqm.toLocaleString()} m² (${distData.supplySharePct}% of new completions) entering the district pipeline in 2026–2027.
+3. Net Absorption Reality: RVD records net take-up of ${sector.netTakeUpSqm > 0 ? '+' : ''}${sector.netTakeUpSqm.toLocaleString()} m² in this grade, confirming heightened tenant relocation options and significant landlord re-letting void costs.
+
+COUNTER-OFFER TERMS (反建議續租條款):
+• Proposed Base Rent (目標續租月租): HK$${targetUnitSqft}/sq.ft (HK$${targetMonthlyTotal.toLocaleString()}/month, reflecting ${recommendedChangePct}% alignment with RVD market indices)
+• Rent-Free Incentives (免租期要求): ${rentFreeMonths} months rent-free across a 36-month term
+• Immediate Benefit to Landlord: Zero agency commission (saving 1–2 months rent) and zero vacancy void period.
+
+---
+致 業主 / 資產管理部：
+就貴方提出將本司位於${distObj.nameZh}之${floorAreaSqft.toLocaleString()}平方呎${sector.nameZh}單位續租租金調升 ${landlordAskPct}% (至每呎 HK$${landlordProposedUnitSqft} / 月租 HK$${landlordProposedMonthly.toLocaleString()})，本司經對照香港差餉物業估價署(RVD)最新《香港物業報告》及每月統計補充資料 (${sector.rvdTableRef}) 後，謹提出以下數據依據：
+1. 官方租金指數走勢：差估署數據顯示同區${sector.nameZh}租金按年變動為 ${distData.rentYoY}%，同區官方平均市值租金為每平方呎 HK$${rvdBenchmarkSqft} (每平方米 HK$${rvdBenchmarkSqm})。
+2. 空置率與新供應壓力：同區最新空置率達 ${distData.vacancy}% (全港 ${sector.vacancyPct}%)，2026–2027年區內新增落成量達 ${distData.supply2026Sqm.toLocaleString()} 平方米。
+3. 雙贏續租方案：本司建議續租呎租調整為 HK$${targetUnitSqft} (月租 HK$${targetMonthlyTotal.toLocaleString()}) 並附帶 ${rentFreeMonths} 個月免租期(3年期)。此方案可為貴方省卻重新招租之3至6個月空置期及代理佣金成本。`;
+
+    return {
+      sector,
+      distObj,
+      distData,
+      rvdBenchmarkSqft,
+      rvdBenchmarkSqm,
+      currentMonthlyTotal,
+      landlordProposedUnitSqft,
+      landlordProposedMonthly,
+      leverageScore,
+      recommendedChangePct,
+      targetUnitSqft,
+      targetMonthlyTotal,
+      monthlySavingsVsAsk,
+      threeYearSavingsVsAsk,
+      rentFreeMonths,
+      gradeABenchSqft,
+      showFlightToQualityAlert,
+      memoText
+    };
+  }, [selectedSectorId, selectedDistrictId, floorAreaSqft, currentUnitRentSqft, landlordAskPct]);
+
+  // ==========================================================================
+  // MODULE 2 COMPUTATIONS (18-DISTRICT OVERSUPPLY RADAR)
+  // ==========================================================================
+  const processedDistrictSupply = useMemo(() => {
+    const withMetrics = DISTRICT_SUPPLY_DATA.map((item) => {
+      const netSupplyPool = item.forecast26_27Units + item.currentVacantUnits - item.demolitionsUnits;
+      const pressureRatio = +(netSupplyPool / item.avg5YrTakeUp).toFixed(2);
+      const riskLevel =
+        pressureRatio >= 3.5 ? 'high' : pressureRatio >= 2.2 ? 'medium' : 'low';
+      return {
+        ...item,
+        netSupplyPool,
+        pressureRatio,
+        riskLevel
+      };
+    });
+
+    const filtered =
+      supplySegmentFilter === 'all'
+        ? withMetrics
+        : withMetrics.filter((d) => d.segment === supplySegmentFilter);
+
+    return [...filtered].sort((a, b) => {
+      if (supplySortBy === 'ratio') return b.pressureRatio - a.pressureRatio;
+      if (supplySortBy === 'forecast') return b.forecast26_27Units - a.forecast26_27Units;
+      return b.vacancyRatePct - a.vacancyRatePct;
+    });
+  }, [supplySegmentFilter, supplySortBy]);
+
+  // ==========================================================================
+  // MODULE 3 COMPUTATIONS (POSITIVE CARRY & YIELD ARBITRAGE)
+  // ==========================================================================
+  const processedCarryAssets = useMemo(() => {
+    const effectiveHurdle = useNetCarry ? +(mortgageRate + frictionRate).toFixed(2) : mortgageRate;
+
+    const list = CARRY_ASSETS.map((asset) => {
+      const effectiveYield = useNetCarry ? +(asset.grossYield - frictionRate).toFixed(2) : asset.grossYield;
+      const carrySpreadBps = Math.round((asset.grossYield - effectiveHurdle) * 100);
+      const rentPriceMomentumSpread = +(asset.rentYoY - asset.priceYoY).toFixed(1);
+      return {
+        ...asset,
+        effectiveYield,
+        carrySpreadBps,
+        rentPriceMomentumSpread,
+        isPositiveCarry: carrySpreadBps > 0
+      };
+    });
+
+    const filtered =
+      assetCategoryFilter === 'all'
+        ? list
+        : list.filter((a) => a.category === assetCategoryFilter);
+
+    return filtered.sort((a, b) => b.carrySpreadBps - a.carrySpreadBps);
+  }, [mortgageRate, frictionRate, useNetCarry, assetCategoryFilter]);
+
+  const positiveCarryCount = useMemo(
+    () => processedCarryAssets.filter((a) => a.isPositiveCarry).length,
+    [processedCarryAssets]
+  );
+
+  // ==========================================================================
+  // MODULE 4 COMPUTATIONS (KOL SIGNAL CARD GENERATOR)
+  // ==========================================================================
+  const kolCardData = useMemo(() => {
+    if (kolCardPreset === 'wanchai_office') {
+      return {
+        badgeEn: 'COMMERCIAL LEASE ARBITRAGE SIGNAL',
+        badgeZh: '商業續租博弈與跨級別套利訊號',
+        headlineEn: 'Wan Chai Absorbs 58% of All 2026 HK Grade A Office Completions',
+        headlineZh: '灣仔獨佔全港2026年 58% 甲廈新供應！乙廈租客迎來升級黃金窗',
+        stat1Label: tShort('Wan Chai 2026 Grade A Supply', '灣仔2026甲廈新供應'),
+        stat1Val: '108,100 m² (58%)',
+        stat2Label: tShort('Grade A vs Grade B Take-up', '甲廈 vs 乙廈淨吸納量'),
+        stat2Val: '+97.2k vs -65.0k m²',
+        stat3Label: tShort('Grade B Price YoY Drop', '乙級寫字樓售價按年跌幅'),
+        stat3Val: '-18.1% (Value Trap)',
+        copyText: `📊【差估署RVD數據拆局：灣仔佔全港58%甲廈新供應，乙廈淪為價值陷阱】\n• 全港寫字樓空置率升至17.6% (239萬m²)，但資金與租客出現極端分化：\n• 甲級寫字樓錄得 +97,200 m² 正吸納（租客趁租金跌4%升級搬遷）\n• 乙級寫字樓錄得 -65,000 m² 負吸納，售價按年急挫 -18.1%！\n• 2026年高達58%甲廈新落成量(108,100 m²)集中於灣仔區（中西區佔37%）。灣仔/中環乙廈租戶續租時具備極強議價籌碼，甚至可以相近淨有效租金升級甲廈。\n🔗 數據來源：RVD Signal Terminal (差估署公開數據交叉運算)`
+      };
+    }
+    if (kolCardPreset === 'hki_carry') {
+      return {
+        badgeEn: 'POSITIVE CARRY REGIME SIGNAL',
+        badgeZh: '正利差 (Positive Carry) 跨區套利訊號',
+        headlineEn: 'HK Island Class A Gross Yield Hits 4.54% (+74 bps Over 3.80% Mortgage)',
+        headlineZh: '港島細單位(A類)回報率見 4.54%！跑贏3.80%按息達 +74點子',
+        stat1Label: tShort('HK Island Class A (<40m²)', '港島A類細單位回報'),
+        stat1Val: '4.54% (+74 bps)',
+        stat2Label: tShort('HK Island Class E (≥160m²)', '港島E類豪宅回報'),
+        stat2Val: '1.93% (-187 bps)',
+        stat3Label: tShort('Flatted Factory Yield', '分層工廠大廈回報率'),
+        stat3Val: '4.10% (Price -15.2%)',
+        copyText: `📈【差估署RVD正利差雷達：港島A類細單位回報4.54%，與豪宅拉開261點子差距】\n• 單睇全港樓價指數會錯過分區與面積的巨大套利空間：\n• 港島A類(<40m²)毛回報率升至 4.54%（九龍A類 4.35%），對比3.80%按息錄得 +74 bps 供平過租正利差！\n• 相反港島E類(≥160m²)回報僅 1.93%（負利差 -187 bps）。\n• 非住宅方面，分層工廈售價跌15.2%但租金僅跌3%，回報率擴張至 4.10%。\n🔗 數據來源：RVD Signal Terminal (差估署公開數據交叉運算)`
+      };
+    }
+    return {
+      badgeEn: 'DEVELOPER OVERSUPPLY CLIFF WARNING',
+      badgeZh: '18區新供應消化週期警號',
+      headlineEn: 'Kai Tak & Yuen Long Face 3.9–4.4 Year Absorption Overhang vs 1.18 Yr in SSP',
+      headlineZh: '啟德、元朗消化週期長達 3.9–4.4年！深水埗拆卸抵銷後僅需 1.18年',
+      stat1Label: tShort('Kowloon City (Kai Tak) Ratio', '九龍城(啟德)消化年數'),
+      stat1Val: '4.40 Years (High Risk)',
+      stat2Label: tShort('Yuen Long Absorption Ratio', '元朗區供應消化年數'),
+      stat2Val: '3.90 Years (Alert)',
+      stat3Label: tShort('Sham Shui Po Net Ratio', '深水埗(扣除拆卸)消化'),
+      stat3Val: '1.18 Years (Tight)',
+      copyText: `⚠️【地產網唔會話你知嘅差估署數據：18區未來供應消化雷達】\n• 將差估署「現存空置 + 2026-27預測落成量 - 拆卸量」除以「過去5年平均吸納量」：\n• 九龍城(啟德)中小型住宅消化週期高達 4.40年，元朗達 3.90年，一手貨尾與新盤重疊壓抑二手溢價。\n• 相反深水埗受市建局拆卸重建抵銷(-890伙)及九龍A類4.35%高回報支撐，淨供應消化週期僅 1.18年！\n🔗 數據來源：RVD Signal Terminal (差估署公開數據交叉運算)`
+    };
+  }, [kolCardPreset, lang]);
+
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-emerald-500/30 selection:text-emerald-200">
+      {/* TOP INSTITUTIONAL TERMINAL BAR */}
+      <header className="sticky top-0 z-40 border-b border-slate-800/90 bg-slate-950/95 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-cyan-500/20 border border-emerald-500/40 flex items-center justify-center shadow-lg shadow-emerald-950/50">
+              <Terminal className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-                <span class="text-red-400 block text-xs">SYSTEM STATUS:</span>
-                <span class="text-red-500 font-bold tracking-widest animate-pulse">[ UNDER DEVELOPMENT ]</span>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">
+                  RVD Signal Terminal
+                </h1>
+                <span className="hidden md:inline-block text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                  差估署宏觀與租務博弈終端
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">
+                {t(
+                  '187 RVD Open Datasets → 4 High-Signal Wedges • Zero-Ad Bias • Hosted on Cloudflare + GitHub Actions',
+                  '整合187個差估署數據集 • 零發展商廣告偏見 • 專攻四大高訊號博弈領域'
+                )}
+              </p>
             </div>
-            <div class="flex items-center gap-1 text-xs justify-start md:justify-end">
-                <span class="text-red-400">HARDWARE:</span>
-                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">RTX 4060</span>
-                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">PYTHON 3.14</span>
-            </div>
-        </header>
+          </div>
 
-        <!-- Main Interface Grid -->
-        <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            
-            <!-- Left 2 Columns: Vision Strategy & System Architecture -->
-            <div class="lg:col-span-2 space-y-4">
-                
-                <!-- Core Strategy Box -->
-                <section class="ra1-box p-4 space-y-3">
-                    <h2 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
-                        <span>CORE VISION STRATEGY</span>
-                        <span class="text-xs text-red-500">NO MEMORY HOOKS</span>
-                    </h2>
-                    <p class="text-red-200 text-base leading-tight">
-                        OPERATING VIA DIRECT SCREEN-CAPTURE AND HARDWARE MOUSE/KEYBOARD DISPATCH. ZERO MEMORY INJECTION.
-                    </p>
-                    
-                    <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
-                        <div class="bg-red-950/60 p-2 border border-red-800">
-                            <div class="text-yellow-400 font-bold mb-1">1. PERCEPTION</div>
-                            <div class="text-red-300">MSS / DXCAM (1280x720)</div>
-                        </div>
-                        <div class="bg-red-950/60 p-2 border border-red-800">
-                            <div class="text-yellow-400 font-bold mb-1">2. BRAIN</div>
-                            <div class="text-red-300">OPENCV + CUDA YOLO NANO</div>
-                        </div>
-                        <div class="bg-red-950/60 p-2 border border-red-800">
-                            <div class="text-yellow-400 font-bold mb-1">3. EXECUTION</div>
-                            <div class="text-red-300">DIRECTINPUT DRIVERS</div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Detailed System Architecture Panel -->
-                <section class="ra1-box p-4 space-y-3">
-                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
-                        <span>SYSTEM ARCHITECTURE & PIPELINE</span>
-                        <span class="text-xs text-yellow-500">LATENCY TARGET: &lt; 15MS</span>
-                    </h3>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
-                            <span class="text-yellow-400 font-bold">FRAME SPLITTING & ROIs</span>
-                            <p class="text-red-200 text-sm">
-                                TACTICAL VIEWPORT (0,0 &#x2192; 0.78W) IS ISOLATED FROM COMMAND SIDEBAR (0.78W &#x2192; 1.0W) TO PREVENT FALSE-POSITIVE TEMPLATE MATCHES.
-                            </p>
-                        </div>
-                        
-                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
-                            <span class="text-yellow-400 font-bold">HYBRID INFERENCE ENGINE</span>
-                            <p class="text-red-200 text-sm">
-                                OPENCV NORMED MATCHING FOR UI SYMBOLS (&lt; 2MS ON CPU); CUDA YOLOv11-NANO FOR VIEWPORT UNITS (~4MS ON RTX 4060).
-                            </p>
-                        </div>
-
-                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
-                            <span class="text-yellow-400 font-bold">RADAR MINIMAP PARSER</span>
-                            <p class="text-red-200 text-sm">
-                                HSV COLOR-MASKING SEPARATES UNEXPLORED SHROUD (BLACK), FRIENDLY UNITS (GREEN), HOSTILES (RED), AND ORE DEPOSITS (GOLD).
-                            </p>
-                        </div>
-
-                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
-                            <span class="text-yellow-400 font-bold">SPATIAL CONTROL LOOP</span>
-                            <p class="text-red-200 text-sm">
-                                DETECTED BOUNDING CENTERS ARE MAPPED TO DESKTOP SCREEN COORD: X_SCR = LEFT + X_REL, Y_SCR = TOP + Y_REL.
-                            </p>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Line of Thought / Roadmap -->
-                <section class="ra1-box p-4 space-y-3">
-                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">LINE OF THOUGHT & ROADMAP</h3>
-                    
-                    <div class="space-y-2 text-base">
-                        <div class="flex items-start gap-2">
-                            <span class="text-yellow-400 font-bold">► PHASE 1:</span>
-                            <div>
-                                <span class="text-white">DETERMINISTIC BASICS (ACTIVE)</span>
-                                <p class="text-red-400 text-sm">UNPACK MCV, PARSE SIDEBAR UI, BUILD POWER PLANT & BARRACKS.</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-start gap-2">
-                            <span class="text-yellow-500 font-bold">► PHASE 2:</span>
-                            <div>
-                                <span class="text-gray-300">TACTICAL VISUAL RECOGNITION</span>
-                                <p class="text-red-400 text-sm">TRAIN YOLO WEIGHTS ON LOCAL GPU FOR MOBILE UNITS AND ORE FIELDS.</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-2">
-                            <span class="text-yellow-600 font-bold">► PHASE 3:</span>
-                            <div>
-                                <span class="text-gray-400">ONLINE HUMAN BENCHMARK</span>
-                                <p class="text-red-400 text-sm">LOG MATCH METRICS AGAINST HUMAN LOBBIES TO EVOLVE MODEL CAPABILITY.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Blueprint Visual Frame -->
-                <section class="ra1-box p-3">
-                    <div class="text-xs text-yellow-500 mb-1">TACTICAL BLUEPRINT SCHEMATIC</div>
-                    <img src="assets/tank.jpg" alt="Mammoth Tank Blueprint" class="w-full h-44 object-cover border border-red-900">
-                </section>
-
+          {/* RIGHT CONTROLS: LANGUAGE & ARCHITECTURE DRAWER */}
+          <div className="flex items-center gap-2">
+            {/* Language Switcher */}
+            <div className="inline-flex rounded-lg bg-slate-900 p-1 border border-slate-800">
+              {[
+                { id: 'bi', label: 'EN + 繁中' },
+                { id: 'zh', label: '繁體中文' },
+                { id: 'en', label: 'English' }
+              ].map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => setLang(item.id)}
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md transition-all ${
+                    lang === item.id
+                      ? 'bg-emerald-500 text-slate-950 font-semibold shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
             </div>
 
-            <!-- Right Column: Progress & Checkboxes -->
-            <div class="space-y-4">
-                
-                <!-- Milestone Progress -->
-                <section class="ra1-box p-4 space-y-3">
-                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">MILESTONES</h3>
-                    
-                    <div class="space-y-2 text-sm">
-                        <div>
-                            <div class="flex justify-between text-xs mb-0.5">
-                                <span class="text-white">SCREEN GRABBER</span>
-                                <span class="text-yellow-400">100%</span>
-                            </div>
-                            <div class="w-full bg-red-950 h-3 border border-red-800">
-                                <div class="ra1-gold-bar h-full" style="width: 100%"></div>
-                            </div>
-                        </div>
+            {/* Architecture & ETL Code Modal Button */}
+            <button
+              onClick={() => setShowArchModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/30 transition-all"
+            >
+              <FileCode2 className="w-4 h-4 text-cyan-400" />
+              <span className="hidden sm:inline">
+                {tShort('GitHub + Cloudflare ETL Code', '免費部署架構與ETL代碼')}
+              </span>
+            </button>
+          </div>
+        </div>
 
-                        <div>
-                            <div class="flex justify-between text-xs mb-0.5">
-                                <span class="text-white">TEMPLATE MATCHING</span>
-                                <span class="text-yellow-400">60%</span>
-                            </div>
-                            <div class="w-full bg-red-950 h-3 border border-red-800">
-                                <div class="ra1-gold-bar h-full" style="width: 60%"></div>
-                            </div>
-                        </div>
-
-                        <div class="pt-2 space-y-1.5 text-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="text-yellow-400">[✓]</span>
-                                <span class="text-red-200">BASE UNPACK & BUILD LOOP</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-yellow-400">[✓]</span>
-                                <span class="text-red-200">SIDEBAR ICON MATCHING</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-red-600">[ ]</span>
-                                <span class="text-red-500">YOLO OBJECT DETECTION</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-red-600">[ ]</span>
-                                <span class="text-red-500">MINIMAP RADAR PARSER</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-red-600">[ ]</span>
-                                <span class="text-red-500">ONLINE HUMAN MATCHMAKING</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Vision HUD Visual Frame -->
-                <section class="ra1-box p-3">
-                    <div class="text-xs text-yellow-500 mb-1">VISION HUD OVERLAY</div>
-                    <img src="assets/recog.jpg" alt="Tactical Vision HUD" class="w-full h-40 object-cover border border-red-900">
-                </section>
-
-                <!-- Target Config -->
-                <section class="ra1-box p-3 text-xs space-y-1">
-                    <div class="text-yellow-400 font-bold border-b border-red-900 pb-1">PIPELINE CONFIG</div>
-                    <div class="flex justify-between">
-                        <span class="text-red-400">DEPLOYMENT:</span>
-                        <span class="text-white">CLOUDFLARE PAGES</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-red-400">REPOSITORY:</span>
-                        <span class="text-white">GITHUB AUTO-SYNC</span>
-                    </div>
-                </section>
-
-            </div>
-        </main>
-
-        <!-- Bottom Action Bar -->
-        <footer class="ra1-box p-2 flex justify-between items-center text-xs">
-            <span class="text-red-500">RA1 VISION AI BUILDOUT // MODEL PERFORMANCE TRACKER</span>
-            <span class="bg-red-900 text-yellow-300 font-bold px-3 py-1 border border-red-600 cursor-pointer hover:bg-red-800">
-                OK
+        {/* LIVE MACRO TICKER TAPE */}
+        <div className="bg-slate-900/80 border-t border-slate-800/80 px-4 py-1.5 overflow-x-auto">
+          <div className="max-w-7xl mx-auto flex items-center gap-6 text-xs whitespace-nowrap">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              RVD LIVE REGIME (2026):
             </span>
-        </footer>
+            <span className="text-slate-300">
+              HK Island Class A Yield: <strong className="text-emerald-400">4.54% (+74 bps Carry)</strong>
+            </span>
+            <span className="text-slate-300">
+              HK Island Class E Yield: <strong className="text-rose-400">1.93% (-187 bps Carry)</strong>
+            </span>
+            <span className="text-slate-300">
+              Wan Chai 2026 Grade A Supply Share: <strong className="text-amber-400">58% (108,100 m²)</strong>
+            </span>
+            <span className="text-slate-300">
+              Office Take-up Split: <strong className="text-cyan-300">Grade A +97.2k m²</strong> vs{' '}
+              <strong className="text-rose-400">Grade B -65.0k m²</strong>
+            </span>
+            <span className="text-slate-300">
+              Flatted Factory Yield: <strong className="text-emerald-400">4.10% (Price -15.2% / Rent -3.0%)</strong>
+            </span>
+          </div>
+        </div>
 
+        {/* MODULE NAVIGATION TABS */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pb-2">
+            {[
+              {
+                id: 'negotiator',
+                icon: Scale,
+                badge: 'WEDGE 1 • 租務博弈',
+                titleEn: 'SME Lease Negotiator',
+                titleZh: '中小企商業及工廈續租議價神器'
+              },
+              {
+                id: 'supply',
+                icon: AlertTriangle,
+                badge: 'WEDGE 2 • 供應雷達',
+                titleEn: 'District Oversupply Radar',
+                titleZh: '18區新供應與空置消化雷達'
+              },
+              {
+                id: 'carry',
+                icon: Calculator,
+                badge: 'WEDGE 3 • 利差套利',
+                titleEn: 'Positive Carry & Yield Matrix',
+                titleZh: '跨板塊正利差與回報套利矩陣'
+              },
+              {
+                id: 'cycle',
+                icon: History,
+                badge: 'WEDGE 4 • 跨週期對照',
+                titleEn: '45-Yr Cycle & KOL Exporter',
+                titleZh: '1979–2026 週期對照與圖卡輸出'
+              }
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-start gap-3 p-3 rounded-xl border text-left transition-all ${
+                    isActive
+                      ? 'bg-gradient-to-br from-emerald-500/15 via-slate-900 to-slate-900 border-emerald-500/60 shadow-lg shadow-emerald-950/30'
+                      : 'bg-slate-900/60 border-slate-800/80 hover:border-slate-700 hover:bg-slate-900'
+                  }`}
+                >
+                  <div
+                    className={`p-2 rounded-lg mt-0.5 ${
+                      isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400/90">
+                      {tab.badge}
+                    </div>
+                    <div className="text-xs sm:text-sm font-bold text-white truncate">
+                      {lang === 'en' ? tab.titleEn : tab.titleZh}
+                    </div>
+                    {lang === 'bi' && (
+                      <div className="text-[11px] text-slate-400 truncate">{tab.titleEn}</div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* MAIN WORKSPACE CONTENT */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* ====================================================================
+            MODULE 1: SME COMMERCIAL & INDUSTRIAL LEASE NEGOTIATOR
+        ==================================================================== */}
+        {activeTab === 'negotiator' && (
+          <div className="space-y-6">
+            {/* Wedge Context Banner */}
+            <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-emerald-950/40 border border-slate-800 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                  <Sparkles className="w-4 h-4" />
+                  {t(
+                    'WHY YOU WIN HERE: Over 350,000 HK SMEs negotiate commercial leases blindly while brokerages hide data in static PDFs.',
+                    '制勝切入點：全港逾35萬間中小企續租時缺乏官方數據籌碼，代理行報告只藏於靜態PDF。'
+                  )}
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white">
+                  {t(
+                    'SME Commercial & Industrial Lease Negotiator',
+                    '中小企商業寫字樓、工廈及地舖續租議價神器'
+                  )}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400">
+                  {t(
+                    'Cross-references RVD District Average Rents, Grade Vacancy, Net Take-up, and 2026–2027 Supply Completions to generate an official landlord counter-offer.',
+                    '即時交叉比對差估署「分區平均租金、各級空置率、淨吸納量及2026–2027落成量」，一鍵生成具官方數據支持嘅業主反建議書。'
+                  )}
+                </p>
+              </div>
+              <div className="flex items-center gap-3 self-start lg:self-center bg-slate-950/80 border border-slate-800 rounded-xl px-4 py-2.5">
+                <div>
+                  <div className="text-[11px] text-slate-400">
+                    {tShort('RVD Official Source Tables', '差估署官方數據表來源')}
+                  </div>
+                  <div className="text-xs font-mono text-emerald-400 font-semibold">
+                    {leaseMetrics.sector.rvdTableRef}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Negotiator Grid: Left Controls + Right Output Engine */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* LEFT PANEL: LEASE PARAMETERS */}
+              <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-5">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-emerald-400" />
+                    {t('1. Configure Current Lease & Landlord Ask', '1. 輸入現有租約與業主續租要求')}
+                  </h3>
+                  <div className="inline-flex rounded-lg bg-slate-950 p-0.5 border border-slate-800 text-[11px]">
+                    <button
+                      onClick={() => setAreaUnit('sqft')}
+                      className={`px-2 py-0.5 rounded ${
+                        areaUnit === 'sqft' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-400'
+                      }`}
+                    >
+                      HK$/sq.ft
+                    </button>
+                    <button
+                      onClick={() => setAreaUnit('sqm')}
+                      className={`px-2 py-0.5 rounded ${
+                        areaUnit === 'sqm' ? 'bg-emerald-500 text-slate-950 font-bold' : 'text-slate-400'
+                      }`}
+                    >
+                      HK$/m²
+                    </button>
+                  </div>
+                </div>
+
+                {/* Property Sector Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 block">
+                    {t('Property Sector (RVD Classification)', '物業類別 (差估署官方分類)')}
+                  </label>
+                  <div className="grid grid-cols-1 gap-2">
+                    {Object.values(LEASE_SECTORS).map((sec) => {
+                      const active = selectedSectorId === sec.id;
+                      return (
+                        <button
+                          key={sec.id}
+                          onClick={() => {
+                            setSelectedSectorId(sec.id);
+                            const newBenchSqft = Math.round(
+                              sec.districtBenchmarks[selectedDistrictId].rentSqm / 10.7639
+                            );
+                            setCurrentUnitRentSqft(newBenchSqft);
+                          }}
+                          className={`p-2.5 rounded-xl border text-left transition-all flex items-center justify-between ${
+                            active
+                              ? 'bg-emerald-500/15 border-emerald-500/60 text-white'
+                              : 'bg-slate-950/60 border-slate-800/80 text-slate-300 hover:border-slate-700'
+                          }`}
+                        >
+                          <div>
+                            <div className="text-xs font-bold">
+                              {lang === 'en' ? sec.nameEn : `${sec.nameZh} (${sec.nameEn})`}
+                            </div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              {lang === 'en' ? sec.statusEn : sec.statusZh}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-mono font-bold text-amber-400">
+                              {sec.vacancyPct}% {tShort('Vac', '空置')}
+                            </span>
+                            <div className="text-[11px] font-mono text-emerald-400">
+                              {sec.rentYoY}% YoY
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* District Selector */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 block">
+                    {t('District Sub-Market', '所屬地區')}
+                  </label>
+                  <select
+                    value={selectedDistrictId}
+                    onChange={(e) => {
+                      const newDist = e.target.value;
+                      setSelectedDistrictId(newDist);
+                      const newBenchSqft = Math.round(
+                        LEASE_SECTORS[selectedSectorId].districtBenchmarks[newDist].rentSqm / 10.7639
+                      );
+                      setCurrentUnitRentSqft(newBenchSqft);
+                    }}
+                    className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    {DISTRICTS_LIST.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.nameZh} — {d.nameEn}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Floor Area & Current Rent Inputs */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">
+                      {tShort('Leased Area (sq.ft)', '租用面積 (平方呎)')}
+                    </label>
+                    <input
+                      type="number"
+                      min={200}
+                      max={100000}
+                      step={100}
+                      value={floorAreaSqft}
+                      onChange={(e) => setFloorAreaSqft(Math.max(100, Number(e.target.value) || 0))}
+                      className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                    <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                      ≈ {Math.round(floorAreaSqft / 10.7639).toLocaleString()} m²
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-400 block mb-1">
+                      {areaUnit === 'sqft'
+                        ? tShort('Current Rent (HK$/sq.ft)', '現時呎租 (HK$/呎)')
+                        : tShort('Current Rent (HK$/m²)', '現時平方米租 (HK$/m²)')}
+                    </label>
+                    <input
+                      type="number"
+                      min={5}
+                      max={2000}
+                      value={
+                        areaUnit === 'sqft'
+                          ? currentUnitRentSqft
+                          : Math.round(currentUnitRentSqft * 10.7639)
+                      }
+                      onChange={(e) => {
+                        const val = Math.max(1, Number(e.target.value) || 0);
+                        setCurrentUnitRentSqft(
+                          areaUnit === 'sqft' ? val : +(val / 10.7639).toFixed(1)
+                        );
+                      }}
+                      className="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm font-mono text-white focus:border-emerald-500 focus:outline-none"
+                    />
+                    <div className="text-[10px] text-emerald-400 mt-1 font-mono">
+                      RVD Bench: HK${leaseMetrics.rvdBenchmarkSqft}/ft² (HK${leaseMetrics.rvdBenchmarkSqm}/m²)
+                    </div>
+                  </div>
+                </div>
+
+                {/* Landlord Proposed Renewal Slider */}
+                <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-slate-300">
+                      {t("Landlord's Renewal Ask %", '業主提出續租加幅 / 減幅')}
+                    </span>
+                    <span
+                      className={`text-sm font-mono font-bold px-2 py-0.5 rounded ${
+                        landlordAskPct > 0
+                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                          : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                      }`}
+                    >
+                      {landlordAskPct > 0 ? `+${landlordAskPct}%` : `${landlordAskPct}%`}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={-20}
+                    max={20}
+                    step={1}
+                    value={landlordAskPct}
+                    onChange={(e) => setLandlordAskPct(Number(e.target.value))}
+                    className="w-full accent-emerald-500 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>-20% (Cut)</span>
+                    <span>0% (Freeze)</span>
+                    <span>+8% (Typical Ask)</span>
+                    <span>+20% (Hike)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT PANEL: RVD LEVERAGE ENGINE & COUNTER-OFFER MEMO */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Top Row: Leverage Gauge + Target Rent Savings */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Card 1: Tenant Leverage Score */}
+                  <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-400">
+                        {tShort('Tenant Leverage Score', '租客議價籌碼指數')}
+                      </span>
+                      <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="my-3 flex items-baseline gap-2">
+                      <span className="text-3xl font-extrabold font-mono text-emerald-400">
+                        {leaseMetrics.leverageScore}
+                      </span>
+                      <span className="text-xs text-slate-400">/ 100</span>
+                      <span className="ml-auto text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                        {leaseMetrics.leverageScore >= 75
+                          ? tShort('Strong Tenant Market', '極強租客主導')
+                          : tShort('High Leverage', '具備議價優勢')}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                      <div
+                        className="bg-gradient-to-r from-amber-400 to-emerald-400 h-full transition-all duration-300"
+                        style={{ width: `${leaseMetrics.leverageScore}%` }}
+                      />
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-2">
+                      {tShort(
+                        `Driven by ${leaseMetrics.distData.vacancy}% district vacancy & ${leaseMetrics.distData.rentYoY}% RVD YoY rent trend.`,
+                        `基於同區 ${leaseMetrics.distData.vacancy}% 空置率及差估署租金按年 ${leaseMetrics.distData.rentYoY}% 走勢計算。`
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Card 2: RVD Counter-Offer Target Rent */}
+                  <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-400">
+                        {tShort('RVD Target Counter-Rent', '差估署基準目標反建議租金')}
+                      </span>
+                      <TrendingDown className="w-4 h-4 text-cyan-400" />
+                    </div>
+                    <div className="my-2">
+                      <div className="text-2xl font-extrabold font-mono text-white">
+                        HK${leaseMetrics.targetUnitSqft}
+                        <span className="text-xs font-normal text-slate-400"> /sq.ft</span>
+                      </div>
+                      <div className="text-xs font-mono text-cyan-400">
+                        HK${leaseMetrics.targetMonthlyTotal.toLocaleString()} / {tShort('month', '月')} (
+                        {leaseMetrics.recommendedChangePct}%)
+                      </div>
+                    </div>
+                    <div className="text-[11px] text-slate-400 border-t border-slate-800/80 pt-2 flex justify-between">
+                      <span>{tShort('Ask:', '業主要求:')} HK${leaseMetrics.landlordProposedUnitSqft}/ft²</span>
+                      <span className="text-emerald-400 font-medium">
+                        {tShort('Rent-Free:', '建議免租期:')} {leaseMetrics.rentFreeMonths}m
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Card 3: 3-Year Lease Savings */}
+                  <div className="bg-gradient-to-br from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-emerald-300">
+                        {tShort('3-Year Contract Savings', '3年租約累計節省開支')}
+                      </span>
+                      <Award className="w-4 h-4 text-emerald-400" />
+                    </div>
+                    <div className="my-2">
+                      <div className="text-2xl font-extrabold font-mono text-emerald-400">
+                        HK${leaseMetrics.threeYearSavingsVsAsk.toLocaleString()}
+                      </div>
+                      <div className="text-xs font-mono text-slate-300">
+                        HK${leaseMetrics.monthlySavingsVsAsk.toLocaleString()} / {tShort('month saved vs ask', '每月節省')}
+                      </div>
+                    </div>
+                    <div className="text-[11px] text-emerald-200/80 border-t border-emerald-500/20 pt-2">
+                      {tShort(
+                        'Plus 1–2 months agency fee saved on renewal.',
+                        '另加省卻搬遷裝修及1–2個月代理佣金。'
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* FLIGHT-TO-QUALITY ARBITRAGE ALERT BANNER */}
+                {leaseMetrics.showFlightToQualityAlert && (
+                  <div className="rounded-2xl bg-amber-500/10 border border-amber-500/40 p-4 flex items-start gap-3">
+                    <Zap className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1 text-xs">
+                      <div className="font-bold text-amber-300">
+                        {t(
+                          'RVD FLIGHT-TO-QUALITY ARBITRAGE ALERT: Upgrade from Grade B/C to Grade A!',
+                          '差估署「跨級別升級套利」警報：與其捱貴乙廈，不如平價升級甲級寫字樓！'
+                        )}
+                      </div>
+                      <p className="text-slate-300 leading-relaxed">
+                        {lang === 'en' ? (
+                          <>
+                            RVD 2025/2026 data shows <strong>Grade B offices suffered -65,000 m² negative take-up</strong> while{' '}
+                            <strong>Grade A recorded +97,200 m² positive absorption</strong>. Because{' '}
+                            <strong>58% of all 2026 Grade A new supply (108,100 m²) is landing in Wan Chai</strong> (and 37% in Central), Grade A landlords are offering 4–6 months rent-free incentives—bringing net effective Grade A rents (benchmark ~HK${leaseMetrics.gradeABenchSqft}/sq.ft) within striking distance of your landlord&apos;s proposed HK${leaseMetrics.landlordProposedUnitSqft}/sq.ft ask!
+                          </>
+                        ) : (
+                          <>
+                            差估署最新數據顯示<strong>乙級寫字樓錄得 -65,000 m² 負吸納（租客大流失）</strong>，而<strong>甲級寫字樓卻錄得 +97,200 m² 正吸納</strong>！由於2026年全港高達 <strong>58% 甲廈新供應 (108,100 m²) 集中於灣仔</strong>（中西區佔37%），甲廈業主正提供長達4至6個月免租期搶客。扣除免租期後，同區甲廈淨有效呎租（基準約 HK${leaseMetrics.gradeABenchSqft}/呎）已極貼近貴業主提出的 HK${leaseMetrics.landlordProposedUnitSqft}/呎要求！
+                          </>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* AUTO-GENERATED BILINGUAL COUNTER-OFFER MEMO */}
+                <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-2">
+                        <FileCode2 className="w-4 h-4 text-emerald-400" />
+                        {t(
+                          'Official RVD-Grounded Landlord Counter-Offer Memo',
+                          '一鍵複製：引用差估署官方數據之《業主續租反建議書》'
+                        )}
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        {tShort(
+                          'Ready to paste into Email or WhatsApp to your landlord or leasing agent.',
+                          '自動填入同區空置率、差估署表格編號及2026新供應數據，可直接發送予業主或租務代理。'
+                        )}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleCopy(leaseMetrics.memoText, 'lease_memo')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition-all shadow-md"
+                    >
+                      {copiedKey === 'lease_memo' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          {tShort('Copied Memo!', '已複製反建議書！')}
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          {tShort('Copy Counter-Offer Memo', '一鍵複製續租反建議書')}
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <pre className="w-full max-h-60 overflow-y-auto rounded-xl bg-slate-950 border border-slate-800 p-3.5 text-[11px] leading-relaxed font-mono text-slate-300 whitespace-pre-wrap">
+                    {leaseMetrics.memoText}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ====================================================================
+            MODULE 2: UNBIASED DISTRICT OVERSUPPLY RADAR
+        ==================================================================== */}
+        {activeTab === 'supply' && (
+          <div className="space-y-6">
+            {/* Wedge Banner */}
+            <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-amber-950/30 border border-slate-800 p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold text-amber-400">
+                  <AlertTriangle className="w-4 h-4" />
+                  {t(
+                    'WHY YOU WIN HERE: Ad-funded property portals depend on developer ad spend and never warn buyers about district supply cliffs.',
+                    '制勝切入點：傳統地產網依賴發展商新盤廣告費，絕不會警告買家邊個區份面臨未來2年供應懸崖。'
+                  )}
+                </div>
+                <h2 className="text-lg sm:text-xl font-bold text-white">
+                  {t(
+                    '18-District Forward Supply Pressure & Vacancy Absorption Radar',
+                    '全港分區新供應壓力與空置消化週期雷達'
+                  )}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400">
+                  {t(
+                    'Formula: (2026–2027 Forecast Completions + Current Vacant Stock − Demolitions) ÷ 5-Year Average Annual Take-up = Years Required to Absorb Supply.',
+                    '獨家跨表公式：(2026–2027預測落成量 + 現存空置單位 − 拆卸量) ÷ 過去5年平均每年吸納量 = 消化倍數(年)。'
+                  )}
+                </p>
+              </div>
+
+              {/* Filter & Sort Controls */}
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={supplySegmentFilter}
+                  onChange={(e) => setSupplySegmentFilter(e.target.value)}
+                  className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="all">{tShort('All Property Types', '全部物業類別')}</option>
+                  <option value="domestic_ab">{tShort('Domestic Class A–B (<70m²)', '中小型住宅 A–B類')}</option>
+                  <option value="domestic_de">{tShort('Domestic Class D–E (≥100m²)', '大型住宅 D–E類')}</option>
+                  <option value="office">{tShort('Commercial Office', '商業寫字樓')}</option>
+                </select>
+                <select
+                  value={supplySortBy}
+                  onChange={(e) => setSupplySortBy(e.target.value)}
+                  className="rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="ratio">{tShort('Sort: Absorption Years (High → Low)', '排序：消化年數 (高至低)')}</option>
+                  <option value="forecast">{tShort('Sort: 2026–27 New Supply', '排序：2026–27預測新供應')}</option>
+                  <option value="vacancy">{tShort('Sort: Current Vacancy %', '排序：現時空置率 %')}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Visual Horizontal Bar Comparison Chart */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-amber-400" />
+                  {t(
+                    'Forward Supply Absorption Timeline by District (Years of Take-up Required)',
+                    '各區未來供應消化週期排行榜 (需時多少年才可完全吸納)'
+                  )}
+                </h3>
+                <div className="flex items-center gap-4 text-[11px]">
+                  <span className="flex items-center gap-1.5 text-rose-400">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-rose-500" />
+                    &ge;3.5 {tShort('Yrs (Oversupply Cliff)', '年 (供應過剩警戒)')}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-amber-400">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-amber-500" />
+                    2.2–3.4 {tShort('Yrs (Elevated)', '年 (偏高關注)')}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-emerald-400">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500" />
+                    &lt;2.2 {tShort('Yrs (Tight / Healthy)', '年 (供應緊絀/健康)')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {processedDistrictSupply.map((item) => {
+                  const widthPct = Math.min(100, (item.pressureRatio / 4.8) * 100);
+                  const barColor =
+                    item.riskLevel === 'high'
+                      ? 'from-rose-600 to-rose-400'
+                      : item.riskLevel === 'medium'
+                      ? 'from-amber-600 to-amber-400'
+                      : 'from-emerald-600 to-emerald-400';
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800/90 hover:border-slate-700 transition-all space-y-2"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs sm:text-sm font-bold text-white">
+                            {lang === 'en' ? item.districtEn : `${item.districtZh} (${item.districtEn})`}
+                          </span>
+                          <span className="text-[11px] px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-slate-300">
+                            {lang === 'en' ? item.segmentLabelEn : item.segmentLabelZh}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 font-mono text-xs">
+                          <span className="text-slate-400">
+                            {tShort('Vacancy:', '空置率:')} <strong className="text-white">{item.vacancyRatePct}%</strong>
+                          </span>
+                          <span className="text-slate-400">
+                            {tShort('26–27 Supply:', '新供應:')}{' '}
+                            <strong className="text-amber-300">+{item.forecast26_27Units.toLocaleString()}</strong>
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full font-bold ${
+                              item.riskLevel === 'high'
+                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                : item.riskLevel === 'medium'
+                                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                                : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            }`}
+                          >
+                            {item.pressureRatio} {tShort('Yrs to Absorb', '年消化期')}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Bar Gauge */}
+                      <div className="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full bg-gradient-to-r ${barColor} rounded-full transition-all duration-500`}
+                          style={{ width: `${widthPct}%` }}
+                        />
+                      </div>
+
+                      {/* Breakdown & Actionable Note */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] text-slate-400 pt-1">
+                        <div>
+                          {lang === 'en' ? item.noteEn : item.noteZh}
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-500 shrink-0">
+                          Pool: ({item.forecast26_27Units.toLocaleString()} new + {item.currentVacantUnits.toLocaleString()} vac −{' '}
+                          {item.demolitionsUnits} demo) ÷ {item.avg5YrTakeUp.toLocaleString()}/yr
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ====================================================================
+            MODULE 3: CROSS-ASSET POSITIVE CARRY & YIELD ARBITRAGE MATRIX
+        ==================================================================== */}
+        {activeTab === 'carry' && (
+          <div className="space-y-6">
+            {/* Wedge Banner + Live Sliders */}
+            <div className="rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/30 border border-slate-800 p-4 sm:p-5 space-y-4">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-cyan-400">
+                    <Calculator className="w-4 h-4" />
+                    {t(
+                      'WHY YOU WIN HERE: Retail sites never join RVD Rent + Price + Yield series across Domestic AND Industrial/Commercial with a live HIBOR carry calculator.',
+                      '制勝切入點：坊間平台從未將差估署「住宅A至E類、工廈、商舖、寫字樓」合併計算即時按息正利差(Positive Carry)。'
+                    )}
+                  </div>
+                  <h2 className="text-lg sm:text-xl font-bold text-white">
+                    {t(
+                      'Cross-Asset Positive Carry & Rent-Price Momentum Matrix',
+                      '跨板塊「供平過租」正利差與租價動能套利矩陣'
+                    )}
+                  </h2>
+                </div>
+
+                {/* Summary KPI Pill */}
+                <div className="flex items-center gap-3 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 self-start lg:self-center">
+                  <div className="text-right">
+                    <div className="text-[11px] text-slate-400">
+                      {tShort('Positive Carry Sectors Found', '錄得正利差(供平過租)板塊')}
+                    </div>
+                    <div className="text-sm font-mono font-bold text-emerald-400">
+                      {positiveCarryCount} / {processedCarryAssets.length} {tShort('Segments Beat Hurdle', '個板塊跑贏按息')}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interactive Sliders Bar */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-slate-800/80">
+                {/* Slider 1: Effective Mortgage Rate */}
+                <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-slate-300">
+                      {tShort('Effective Mortgage / HIBOR Cap', '實際按揭利率 / H按封頂息')}
+                    </span>
+                    <span className="font-mono font-bold text-cyan-400">{mortgageRate.toFixed(2)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={2.25}
+                    max={5.25}
+                    step={0.05}
+                    value={mortgageRate}
+                    onChange={(e) => setMortgageRate(Number(e.target.value))}
+                    className="w-full accent-cyan-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
+                    <span>2.25% (Rate Cut)</span>
+                    <span>3.80% (2026 Bench)</span>
+                    <span>5.25% (Stress)</span>
+                  </div>
+                </div>
+
+                {/* Slider 2: Friction Buffer */}
+                <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-slate-300">
+                      {tShort('Friction Buffer (Rates/Mgmt Fee)', '雜費緩衝 (差餉/管理費/維修)')}
+                    </span>
+                    <span className="font-mono font-bold text-amber-400">{frictionRate.toFixed(2)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0.0}
+                    max={1.0}
+                    step={0.05}
+                    value={frictionRate}
+                    onChange={(e) => setFrictionRate(Number(e.target.value))}
+                    className="w-full accent-amber-400 cursor-pointer"
+                  />
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 pt-0.5">
+                    <label className="inline-flex items-center gap-1.5 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={useNetCarry}
+                        onChange={(e) => setUseNetCarry(e.target.checked)}
+                        className="rounded accent-emerald-500"
+                      />
+                      <span>{tShort('Deduct friction from yield', '從毛回報扣除雜費計算淨利差')}</span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Filter 3: Category Filter */}
+                <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between">
+                  <span className="text-xs font-semibold text-slate-300">
+                    {tShort('Filter Asset Universe', '篩選物業板塊')}
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5 my-1">
+                    {[
+                      { id: 'all', label: tShort('All (13)', '全部 (13)') },
+                      { id: 'Domestic', label: tShort('Domestic', '私人住宅') },
+                      { id: 'Non-Domestic', label: tShort('Commercial/Ind', '工商舖') }
+                    ].map((btn) => (
+                      <button
+                        key={btn.id}
+                        onClick={() => setAssetCategoryFilter(btn.id)}
+                        className={`py-1.5 px-2 rounded-lg text-xs font-semibold transition-all ${
+                          assetCategoryFilter === btn.id
+                            ? 'bg-cyan-500 text-slate-950'
+                            : 'bg-slate-900 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-mono">
+                    Hurdle Rate: {(useNetCarry ? mortgageRate + frictionRate : mortgageRate).toFixed(2)}%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* POSITIVE CARRY RANKING TABLE / CARDS */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-emerald-400" />
+                  {t(
+                    'Live Carry Spread Ranking (Basis Points vs Selected Mortgage Rate)',
+                    '各區住宅及工商舖利差排行榜 (點子 bps 對比所選按揭利率)'
+                  )}
+                </h3>
+                <span className="text-[11px] font-mono text-slate-400">
+                  100 bps = 1.00% Spread
+                </span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-slate-800 text-[11px] text-slate-400 uppercase">
+                      <th className="py-2.5 px-3">{tShort('Asset Segment', '物業板塊 / 分區面積')}</th>
+                      <th className="py-2.5 px-3">{tShort('RVD Yield', '差估署回報率')}</th>
+                      <th className="py-2.5 px-3">{tShort('Carry Spread (bps)', '按息利差 (點子)')}</th>
+                      <th className="py-2.5 px-3">{tShort('Rent vs Price YoY', '租金 vs 售價按年')}</th>
+                      <th className="py-2.5 px-3">{tShort('Actionable Signal Thesis', '實戰配置訊號')}</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/70 text-xs">
+                    {processedCarryAssets.map((item) => (
+                      <tr key={item.id} className="hover:bg-slate-950/60 transition-colors">
+                        <td className="py-3 px-3">
+                          <div className="font-bold text-white">
+                            {lang === 'en' ? item.nameEn : item.nameZh}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            {item.category} • HK${item.priceSqm.toLocaleString()}/m² • Vac {item.vacancyPct}%
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 font-mono">
+                          <span className="text-sm font-bold text-white">{item.grossYield.toFixed(2)}%</span>
+                          {useNetCarry && (
+                            <div className="text-[10px] text-amber-400">
+                              Net: {item.effectiveYield.toFixed(2)}%
+                            </div>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 font-mono">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full font-bold ${
+                              item.isPositiveCarry
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                                : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                            }`}
+                          >
+                            {item.isPositiveCarry ? (
+                              <ArrowUpRight className="w-3.5 h-3.5" />
+                            ) : (
+                              <ArrowDownRight className="w-3.5 h-3.5" />
+                            )}
+                            {item.carrySpreadBps > 0 ? `+${item.carrySpreadBps}` : item.carrySpreadBps} bps
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 font-mono">
+                          <div className="flex items-center gap-2">
+                            <span className={item.rentYoY >= 0 ? 'text-emerald-400' : 'text-amber-400'}>
+                              R: {item.rentYoY > 0 ? `+${item.rentYoY}%` : `${item.rentYoY}%`}
+                            </span>
+                            <span className="text-slate-600">/</span>
+                            <span className={item.priceYoY >= 0 ? 'text-cyan-400' : 'text-rose-400'}>
+                              P: {item.priceYoY > 0 ? `+${item.priceYoY}%` : `${item.priceYoY}%`}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            Rent-Price Spread: {item.rentPriceMomentumSpread > 0 ? `+${item.rentPriceMomentumSpread}%` : `${item.rentPriceMomentumSpread}%`}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-slate-300 max-w-xs">
+                          {lang === 'en' ? item.highlightEn : item.highlightZh}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* VOLUME-LEAD INFLECTION RADAR (July 2026 -41.7% MoM Volume Signal) */}
+            <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-cyan-400" />
+                    {t(
+                      'Volume-Lead Inflection Radar: How RVD Sales Volume Leads Price Plateaus by 4–8 Weeks',
+                      '成交量領先轉向雷達：差估署住宅成交量急挫如何領先樓價橫行4至8週'
+                    )}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {t(
+                      'In July 2026, RVD Domestic Sales fell -41.7% MoM (from 7,653 to 4,462 units), immediately preceding the July (-0.8%) and August (+0.06%) price index plateau.',
+                      '2026年7月差估署住宅買賣成交量按月急挫 41.7% (由7,653宗跌至4,462宗)，隨即預示7月(-0.8%)及8月(+0.06%)整體樓價指數見頂橫行。'
+                    )}
+                  </p>
+                </div>
+                <span className="text-xs font-mono text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-lg self-start">
+                  Jul 2026 Signal: -41.7% MoM Volume Shock
+                </span>
+              </div>
+
+              {/* Dual Visual Bar & Regional Price Table */}
+              <div className="grid grid-cols-12 gap-2 items-end h-44 pt-6 px-2 bg-slate-950/80 rounded-xl border border-slate-800 p-4">
+                {VOLUME_PRICE_SERIES.map((pt) => {
+                  const hPct = Math.round((pt.salesVol / 8000) * 100);
+                  return (
+                    <div key={pt.month} className="col-span-1 flex flex-col items-center h-full justify-end group relative">
+                      <div className="text-[10px] font-mono text-slate-400 mb-1 hidden sm:block">
+                        {(pt.salesVol / 1000).toFixed(1)}k
+                      </div>
+                      <div
+                        className={`w-full max-w-[28px] rounded-t transition-all ${
+                          pt.alert
+                            ? 'bg-gradient-to-t from-rose-600 to-amber-400 ring-2 ring-rose-400'
+                            : 'bg-gradient-to-t from-cyan-700 to-cyan-400/80 hover:from-emerald-600 hover:to-emerald-400'
+                        }`}
+                        style={{ height: `${hPct}%` }}
+                      />
+                      <div className={`text-[10px] font-mono mt-1.5 ${pt.alert ? 'text-rose-400 font-bold' : 'text-slate-400'}`}>
+                        {pt.month.split(' ')[0]}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                <span>
+                  {tShort(
+                    'Oct 2025 – Sep 2026 Class B Regional Price Divergence: HK Island +16.5% YoY (HK$157,538/m²) vs Kowloon +9.9% vs NT +3.0%.',
+                    '2025年10月至2026年9月 B類單位分區樓價分化：港島按年升 +16.5% (HK$157,538/m²) 遠超九龍(+9.9%)及新界(+3.0%)。'
+                  )}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ====================================================================
+            MODULE 4: 45-YEAR CYCLE REGIME MATCHER & KOL SIGNAL CARD STUDIO
+        ==================================================================== */}
+        {activeTab === 'cycle' && (
+          <div className="space-y-6">
+            {/* Top Grid: 45-Year Cycle Matcher (Left 7 cols) + KOL Card Studio (Right 5 cols) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* LEFT: 45-YEAR CYCLE REGIME MATCHER */}
+              <div className="lg:col-span-7 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-5">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400">
+                    <History className="w-4 h-4" />
+                    {t(
+                      '1979–2026 STITCHED RVD HISTORICAL SERIES (PRE-1999 + POST-1999)',
+                      '縫合1982–1998及1999–2026差估署歷史數據庫 • 45年跨週期對照'
+                    )}
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white">
+                    {t(
+                      'Why 2021–2026 Is NOT 1997–2003: The Rent Resilience Divergence',
+                      '為何 2021–2026 並非 1997翻版？關鍵在於「租金逆市破頂」'
+                    )}
+                  </h3>
+                </div>
+
+                {/* Select Historical Cycle to Compare Against Current 2021-2026 */}
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold text-slate-300 block">
+                    {t('Compare Current 2021–2026 Cycle Against:', '選擇歷史週期與當前 2021–2026 週期對照：')}
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    {['afc_1997_2003', 'sino_1981_1984', 'gfc_2008_2009'].map((cid) => {
+                      const cObj = CYCLE_REGIMES[cid];
+                      const active = comparisonCycleId === cid;
+                      return (
+                        <button
+                          key={cid}
+                          onClick={() => setComparisonCycleId(cid)}
+                          className={`p-2.5 rounded-xl border text-left transition-all ${
+                            active
+                              ? 'bg-emerald-500/15 border-emerald-500 text-white'
+                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          <div className="text-xs font-bold truncate">
+                            {lang === 'en' ? cObj.nameEn : cObj.nameZh}
+                          </div>
+                          <div className="text-[11px] font-mono text-amber-400 mt-1">
+                            Price: {cObj.maxPriceDrawdownPct}% | Rent: {cObj.rentChangeFromTroughPct > 0 ? `+${cObj.rentChangeFromTroughPct}%` : `${cObj.rentChangeFromTroughPct}%`}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* SVG Indexed Trajectory Comparison Chart (Peak = 100) */}
+                <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <span className="font-semibold text-slate-300">
+                      {tShort('Indexed Trajectory from Cycle Peak (Month 0 = 100)', '由週期見頂起計指數走勢 (見頂月 M0 = 100)')}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-3 text-[11px]">
+                      <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+                        <span className="w-3 h-0.5 bg-emerald-400 inline-block" /> 2021–26 Rent (+8.4%)
+                      </span>
+                      <span className="flex items-center gap-1 text-cyan-400 font-semibold">
+                        <span className="w-3 h-0.5 bg-cyan-400 inline-block" /> 2021–26 Price (-27.2%)
+                      </span>
+                      <span className="flex items-center gap-1 text-rose-400 font-semibold">
+                        <span className="w-3 h-0.5 bg-rose-400 inline-block" /> Comp Price ({CYCLE_REGIMES[comparisonCycleId].maxPriceDrawdownPct}%)
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Responsive SVG Chart */}
+                  <svg viewBox="0 0 600 210" className="w-full h-48 overflow-visible">
+                    {/* Horizontal Grid Lines (Index 120, 100, 80, 60, 40) */}
+                    {[40, 60, 80, 100, 120].map((val) => {
+                      const y = 185 - ((val - 30) / 100) * 155;
+                      return (
+                        <g key={val}>
+                          <line
+                            x1="40"
+                            y1={y}
+                            x2="580"
+                            y2={y}
+                            stroke={val === 100 ? '#475569' : '#1e293b'}
+                            strokeDasharray={val === 100 ? '4 4' : 'none'}
+                            strokeWidth="1"
+                          />
+                          <text x="8" y={y + 4} fill="#64748b" fontSize="10" fontFamily="monospace">
+                            {val}
+                          </text>
+                        </g>
+                      );
+                    })}
+
+                    {/* Plot Lines Helper */}
+                    {(() => {
+                      const toPoints = (arr) =>
+                        arr
+                          .map((v, idx) => {
+                            const clamped = Math.min(130, Math.max(30, v));
+                            const x = 40 + (idx / (arr.length - 1)) * 540;
+                            const y = 185 - ((clamped - 30) / 100) * 155;
+                            return `${x},${y}`;
+                          })
+                          .join(' ');
+
+                      const curPricePts = toPoints(CYCLE_REGIMES.current_2021_2026.pricePath);
+                      const curRentPts = toPoints(CYCLE_REGIMES.current_2021_2026.rentPath);
+                      const compPricePts = toPoints(CYCLE_REGIMES[comparisonCycleId].pricePath);
+                      const compRentPts = toPoints(CYCLE_REGIMES[comparisonCycleId].rentPath);
+
+                      return (
+                        <>
+                          {/* Comparison Rent (Dashed Amber) */}
+                          <polyline
+                            fill="none"
+                            stroke="#f59e0b"
+                            strokeWidth="1.75"
+                            strokeDasharray="4 4"
+                            points={compRentPts}
+                          />
+                          {/* Comparison Price (Solid Rose) */}
+                          <polyline
+                            fill="none"
+                            stroke="#fb7185"
+                            strokeWidth="2.5"
+                            points={compPricePts}
+                          />
+                          {/* Current 2021-2026 Price (Solid Cyan) */}
+                          <polyline
+                            fill="none"
+                            stroke="#22d3ee"
+                            strokeWidth="2.5"
+                            points={curPricePts}
+                          />
+                          {/* Current 2021-2026 Rent (Solid Emerald) */}
+                          <polyline
+                            fill="none"
+                            stroke="#34d399"
+                            strokeWidth="3"
+                            points={curRentPts}
+                          />
+                        </>
+                      );
+                    })()}
+
+                    {/* X-Axis Labels */}
+                    {CYCLE_MONTH_LABELS.map((lbl, idx) => {
+                      const x = 40 + (idx / (CYCLE_MONTH_LABELS.length - 1)) * 540;
+                      return (
+                        <text
+                          key={lbl}
+                          x={x}
+                          y="204"
+                          textAnchor="middle"
+                          fill="#94a3b8"
+                          fontSize="10"
+                          fontFamily="monospace"
+                        >
+                          {lbl}
+                        </text>
+                      );
+                    })}
+                  </svg>
+                </div>
+
+                {/* Side-by-Side Regime Diagnosis */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-emerald-500/30 space-y-1.5">
+                    <div className="font-bold text-emerald-400">
+                      {lang === 'en'
+                        ? CYCLE_REGIMES.current_2021_2026.nameEn
+                        : CYCLE_REGIMES.current_2021_2026.nameZh}
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      {lang === 'en'
+                        ? CYCLE_REGIMES.current_2021_2026.macroDriverEn
+                        : CYCLE_REGIMES.current_2021_2026.macroDriverZh}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-slate-950 border border-rose-500/30 space-y-1.5">
+                    <div className="font-bold text-rose-400">
+                      {lang === 'en'
+                        ? CYCLE_REGIMES[comparisonCycleId].nameEn
+                        : CYCLE_REGIMES[comparisonCycleId].nameZh}
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      {lang === 'en'
+                        ? CYCLE_REGIMES[comparisonCycleId].macroDriverEn
+                        : CYCLE_REGIMES[comparisonCycleId].macroDriverZh}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT: SHAREABLE KOL SIGNAL CARD STUDIO (LIHKG / X / SUBSTACK) */}
+              <div className="lg:col-span-5 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Share2 className="w-4 h-4 text-emerald-400" />
+                      {t(
+                        'Viral KOL Signal Card Exporter (LIHKG / X / WhatsApp)',
+                        '社交媒體訊號圖卡生成器 (連登 LIHKG / X / WhatsApp)'
+                      )}
+                    </h3>
+                  </div>
+                  <p className="text-xs text-slate-400">
+                    {t(
+                      'Generate zero-cost organic traffic by letting property KOLs, agents, and tenants share watermarked RVD signal cards.',
+                      '讓地產KOL、租客及投資者一鍵複製帶有網站水印嘅高訊號數據卡，零廣告費在連登房屋台及社交媒體帶動自然流量。'
+                    )}
+                  </p>
+
+                  {/* Preset Selector */}
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { id: 'wanchai_office', label: tShort('Wan Chai Office', '灣仔甲廈供應') },
+                      { id: 'hki_carry', label: tShort('HKI +74bps Carry', '港島正利差') },
+                      { id: 'kaitak_supply', label: tShort('Kai Tak Supply', '啟德消化週期') }
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => setKolCardPreset(p.id)}
+                        className={`py-2 px-2 rounded-lg text-xs font-bold border transition-all ${
+                          kolCardPreset === p.id
+                            ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* VISUAL WATERMARKED SIGNAL CARD PREVIEW */}
+                  <div className="rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950/50 border-2 border-emerald-500/40 p-5 space-y-4 shadow-xl">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        {lang === 'en' ? kolCardData.badgeEn : kolCardData.badgeZh}
+                      </span>
+                      <span className="text-[10px] font-mono text-slate-400">RVD.GOV.HK VERIFIED</span>
+                    </div>
+
+                    <h4 className="text-base font-extrabold text-white leading-snug">
+                      {lang === 'en' ? kolCardData.headlineEn : kolCardData.headlineZh}
+                    </h4>
+
+                    <div className="grid grid-cols-3 gap-2 pt-1">
+                      <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                        <div className="text-[10px] text-slate-400">{kolCardData.stat1Label}</div>
+                        <div className="text-xs font-mono font-bold text-emerald-400 mt-1">
+                          {kolCardData.stat1Val}
+                        </div>
+                      </div>
+                      <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                        <div className="text-[10px] text-slate-400">{kolCardData.stat2Label}</div>
+                        <div className="text-xs font-mono font-bold text-cyan-400 mt-1">
+                          {kolCardData.stat2Val}
+                        </div>
+                      </div>
+                      <div className="bg-slate-950/90 border border-slate-800 rounded-xl p-2.5">
+                        <div className="text-[10px] text-slate-400">{kolCardData.stat3Label}</div>
+                        <div className="text-xs font-mono font-bold text-amber-400 mt-1">
+                          {kolCardData.stat3Val}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between border-t border-slate-800/80 pt-3 text-[10px] font-mono text-slate-400">
+                      <span>⚡ RVD Signal Terminal | 差估署宏觀博弈終端</span>
+                      <span className="text-emerald-400">rvd-signal.pages.dev</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* One-Click Copy Formatted Post */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleCopy(kolCardData.copyText, 'kol_post')}
+                    className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center justify-center gap-2 transition-all shadow-lg"
+                  >
+                    {copiedKey === 'kol_post' ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        {tShort('Copied Formatted Thread Post!', '已複製連登 / X 討論區帖文！')}
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        {tShort('Copy Ready-to-Post LIHKG / X Thread', '一鍵複製連登 LIHKG / X 數據帖文')}
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ======================================================================
+          MODAL: GITHUB + CLOUDFLARE ZERO-COST ARCHITECTURE & ETL PIPELINE CODE
+      ====================================================================== */}
+      {showArchModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl max-w-4xl w-full p-5 sm:p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-slate-800 pb-4">
+              <div>
+                <span className="text-xs font-mono uppercase text-cyan-400 font-semibold">
+                  $0/MONTH SERVERLESS DEPLOYMENT BLUEPRINT
+                </span>
+                <h3 className="text-lg font-bold text-white mt-0.5">
+                  {t(
+                    'GitHub Actions + Cloudflare Pages ETL Pipeline for 187 RVD Datasets',
+                    'GitHub Actions + Cloudflare Pages 零成本自動化數據清洗架構'
+                  )}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowArchModal(false)}
+                className="px-3 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300"
+              >
+                {tShort('Close ✕', '關閉 ✕')}
+              </button>
+            </div>
+
+            {/* 3-Step Pipeline Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div className="font-bold text-emerald-400">1. Filter 187 Files → 35 Core CSVs</div>
+                <p className="text-slate-400">
+                  Drops redundant XLS, Traditional Chinese duplicate CSVs, and Annual/Quarterly rollups. Keeps only English Monthly CSV endpoints.
+                </p>
+              </div>
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div className="font-bold text-cyan-400">2. Stitch 1998/1999 & Strip Asterisks</div>
+                <p className="text-slate-400">
+                  Merges pre-1999 and post-1999 series, converts provisional markers (*) into clean boolean flags, and pre-computes carry & supply ratios.
+                </p>
+              </div>
+              <div className="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                <div className="font-bold text-amber-400">3. Static Edge JSON (&lt;15 MB Total)</div>
+                <p className="text-slate-400">
+                  Commits static JSON to your repo so Cloudflare Pages serves unlimited concurrent users globally at $0/month.
+                </p>
+              </div>
+            </div>
+
+            {/* Code Block 1: Python ETL */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-emerald-400">etl/rvd_pipeline.py</span>
+                <button
+                  onClick={() => handleCopy(PYTHON_ETL_CODE, 'py_etl')}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200"
+                >
+                  {copiedKey === 'py_etl' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedKey === 'py_etl' ? 'Copied' : 'Copy Python ETL'}
+                </button>
+              </div>
+              <pre className="rounded-xl bg-slate-950 border border-slate-800 p-3.5 text-[11px] font-mono text-slate-300 overflow-x-auto">
+                {PYTHON_ETL_CODE}
+              </pre>
+            </div>
+
+            {/* Code Block 2: GitHub Action Workflow */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-cyan-400">.github/workflows/rvd_sync.yml</span>
+                <button
+                  onClick={() => handleCopy(GITHUB_WORKFLOW_CODE, 'gh_action')}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-200"
+                >
+                  {copiedKey === 'gh_action' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copiedKey === 'gh_action' ? 'Copied' : 'Copy Workflow YAML'}
+                </button>
+              </div>
+              <pre className="rounded-xl bg-slate-950 border border-slate-800 p-3.5 text-[11px] font-mono text-slate-300 overflow-x-auto">
+                {GITHUB_WORKFLOW_CODE}
+              </pre>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-</body>
-</html>
+  );
+}
