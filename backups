@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RA1 VISION AI // COMMAND CONSOLE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050000;
+            color: #ff2222;
+            font-family: 'VT323', monospace;
+            text-transform: uppercase;
+        }
+
+        /* Original RA1 Skirmish Grid Background */
+        .ra1-grid {
+            background-color: #2b0000;
+            background-image: 
+                linear-gradient(rgba(180, 0, 0, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180, 0, 0, 0.25) 1px, transparent 1px),
+                linear-gradient(45deg, transparent 49%, rgba(120, 0, 0, 0.15) 50%, transparent 51%);
+            background-size: 32px 32px, 32px 32px, 128px 128px;
+        }
+
+        /* Beveled Metallic Outer Frame */
+        .ra1-metal-frame {
+            border: 10px solid #555;
+            border-image: linear-gradient(to bottom, #888 0%, #444 50%, #222 100%) 1;
+            box-shadow: inset 0 0 15px #000, 0 0 25px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Classic RA1 Red Border Box */
+        .ra1-box {
+            border: 2px solid #aa0000;
+            background-color: rgba(15, 0, 0, 0.88);
+            box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.4), 0 0 6px rgba(0,0,0,0.8);
+        }
+
+        /* RA1 Yellow/Gold Progress Bar & Sliders */
+        .ra1-gold-bar {
+            background: linear-gradient(to bottom, #ffe600 0%, #b88600 50%, #664d00 100%);
+            border: 1px solid #ffe600;
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+    </style>
+</head>
+<body class="min-h-screen ra1-grid flex items-center justify-center p-2 md:p-6">
+
+    <!-- Metal Frame Container -->
+    <div class="ra1-metal-frame max-w-6xl w-full bg-black/90 p-4 md:p-6 space-y-4">
+        
+        <!-- Header Controls (Name / Side / Hardware) -->
+        <header class="ra1-box p-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-lg items-center">
+            <div>
+                <span class="text-red-400 block text-xs">PROJECT NAME:</span>
+                <span class="pixel-font text-yellow-400 text-sm md:text-base">RA1 VISION AI</span>
+            </div>
+            <div>
+                <span class="text-red-400 block text-xs">SYSTEM STATUS:</span>
+                <span class="text-red-500 font-bold tracking-widest animate-pulse">[ UNDER DEVELOPMENT ]</span>
+            </div>
+            <div class="flex items-center gap-1 text-xs justify-start md:justify-end">
+                <span class="text-red-400">HARDWARE:</span>
+                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">RTX 4060</span>
+                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">PYTHON 3.14</span>
+            </div>
+        </header>
+
+        <!-- Main Interface Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            
+            <!-- Left 2 Columns: Vision Strategy & System Architecture -->
+            <div class="lg:col-span-2 space-y-4">
+                
+                <!-- Core Strategy Box -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h2 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
+                        <span>CORE VISION STRATEGY</span>
+                        <span class="text-xs text-red-500">NO MEMORY HOOKS</span>
+                    </h2>
+                    <p class="text-red-200 text-base leading-tight">
+                        OPERATING VIA DIRECT SCREEN-CAPTURE AND HARDWARE MOUSE/KEYBOARD DISPATCH. ZERO MEMORY INJECTION.
+                    </p>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">1. PERCEPTION</div>
+                            <div class="text-red-300">MSS / DXCAM (1280x720)</div>
+                        </div>
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">2. BRAIN</div>
+                            <div class="text-red-300">OPENCV + CUDA YOLO NANO</div>
+                        </div>
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">3. EXECUTION</div>
+                            <div class="text-red-300">DIRECTINPUT DRIVERS</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Detailed System Architecture Panel -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
+                        <span>SYSTEM ARCHITECTURE & PIPELINE</span>
+                        <span class="text-xs text-yellow-500">LATENCY TARGET: &lt; 15MS</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">FRAME SPLITTING & ROIs</span>
+                            <p class="text-red-200 text-sm">
+                                TACTICAL VIEWPORT (0,0 &#x2192; 0.78W) IS ISOLATED FROM COMMAND SIDEBAR (0.78W &#x2192; 1.0W) TO PREVENT FALSE-POSITIVE TEMPLATE MATCHES.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">HYBRID INFERENCE ENGINE</span>
+                            <p class="text-red-200 text-sm">
+                                OPENCV NORMED MATCHING FOR UI SYMBOLS (&lt; 2MS ON CPU); CUDA YOLOv11-NANO FOR VIEWPORT UNITS (~4MS ON RTX 4060).
+                            </p>
+                        </div>
+
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">RADAR MINIMAP PARSER</span>
+                            <p class="text-red-200 text-sm">
+                                HSV COLOR-MASKING SEPARATES UNEXPLORED SHROUD (BLACK), FRIENDLY UNITS (GREEN), HOSTILES (RED), AND ORE DEPOSITS (GOLD).
+                            </p>
+                        </div>
+
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">SPATIAL CONTROL LOOP</span>
+                            <p class="text-red-200 text-sm">
+                                DETECTED BOUNDING CENTERS ARE MAPPED TO DESKTOP SCREEN COORD: X_SCR = LEFT + X_REL, Y_SCR = TOP + Y_REL.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Line of Thought / Roadmap -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">LINE OF THOUGHT & ROADMAP</h3>
+                    
+                    <div class="space-y-2 text-base">
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-400 font-bold">► PHASE 1:</span>
+                            <div>
+                                <span class="text-white">DETERMINISTIC BASICS (ACTIVE)</span>
+                                <p class="text-red-400 text-sm">UNPACK MCV, PARSE SIDEBAR UI, BUILD POWER PLANT & BARRACKS.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 font-bold">► PHASE 2:</span>
+                            <div>
+                                <span class="text-gray-300">TACTICAL VISUAL RECOGNITION</span>
+                                <p class="text-red-400 text-sm">TRAIN YOLO WEIGHTS ON LOCAL GPU FOR MOBILE UNITS AND ORE FIELDS.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-600 font-bold">► PHASE 3:</span>
+                            <div>
+                                <span class="text-gray-400">ONLINE HUMAN BENCHMARK</span>
+                                <p class="text-red-400 text-sm">LOG MATCH METRICS AGAINST HUMAN LOBBIES TO EVOLVE MODEL CAPABILITY.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Blueprint Visual Frame -->
+                <section class="ra1-box p-3">
+                    <div class="text-xs text-yellow-500 mb-1">TACTICAL BLUEPRINT SCHEMATIC</div>
+                    <img src="assets/tank.jpg" alt="Mammoth Tank Blueprint" class="w-full h-44 object-cover border border-red-900">
+                </section>
+
+            </div>
+
+            <!-- Right Column: Progress & Checkboxes -->
+            <div class="space-y-4">
+                
+                <!-- Milestone Progress -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">MILESTONES</h3>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <div class="flex justify-between text-xs mb-0.5">
+                                <span class="text-white">SCREEN GRABBER</span>
+                                <span class="text-yellow-400">100%</span>
+                            </div>
+                            <div class="w-full bg-red-950 h-3 border border-red-800">
+                                <div class="ra1-gold-bar h-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-0.5">
+                                <span class="text-white">TEMPLATE MATCHING</span>
+                                <span class="text-yellow-400">60%</span>
+                            </div>
+                            <div class="w-full bg-red-950 h-3 border border-red-800">
+                                <div class="ra1-gold-bar h-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 space-y-1.5 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">[✓]</span>
+                                <span class="text-red-200">BASE UNPACK & BUILD LOOP</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">[✓]</span>
+                                <span class="text-red-200">SIDEBAR ICON MATCHING</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">YOLO OBJECT DETECTION</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">MINIMAP RADAR PARSER</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">ONLINE HUMAN MATCHMAKING</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vision HUD Visual Frame -->
+                <section class="ra1-box p-3">
+                    <div class="text-xs text-yellow-500 mb-1">VISION HUD OVERLAY</div>
+                    <img src="assets/recog.jpg" alt="Tactical Vision HUD" class="w-full h-40 object-cover border border-red-900">
+                </section>
+
+                <!-- Target Config -->
+                <section class="ra1-box p-3 text-xs space-y-1">
+                    <div class="text-yellow-400 font-bold border-b border-red-900 pb-1">PIPELINE CONFIG</div>
+                    <div class="flex justify-between">
+                        <span class="text-red-400">DEPLOYMENT:</span>
+                        <span class="text-white">CLOUDFLARE PAGES</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-red-400">REPOSITORY:</span>
+                        <span class="text-white">GITHUB AUTO-SYNC</span>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Bottom Action Bar -->
+        <footer class="ra1-box p-2 flex justify-between items-center text-xs">
+            <span class="text-red-500">RA1 VISION AI BUILDOUT // MODEL PERFORMANCE TRACKER</span>
+            <span class="bg-red-900 text-yellow-300 font-bold px-3 py-1 border border-red-600 cursor-pointer hover:bg-red-800">
+                OK
+            </span>
+        </footer>
+
+    </div>
+
+</body>
+</html>
