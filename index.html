@@ -1,1332 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RAAI — HK Property & Rent Decision Map</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Leaflet Interactive Map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
-
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
-            display: ['"Space Grotesk"', 'system-ui', 'sans-serif'],
-            mono: ['"JetBrains Mono"', 'monospace']
-          },
-          colors: {
-            canvas: '#F6F4F0',
-            ink: '#141413',
-            coral: { 50: '#FFF2F0', 100: '#FFE1DC', 500: '#E84C3D', 600: '#D13829' },
-            sage: { 50: '#ECFDF5', 100: '#D1FAE5', 600: '#059669', 700: '#047857' }
-          }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RA1 VISION AI // COMMAND CONSOLE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #050000;
+            color: #ff2222;
+            font-family: 'VT323', monospace;
+            text-transform: uppercase;
         }
-      }
-    };
-  </script>
 
-  <style>
-    body {
-      background-color: #F6F4F0;
-      color: #141413;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
-    #hk-map {
-      width: 100%;
-      height: 100%;
-      min-height: 500px;
-      z-index: 10;
-      background: #D9E6EF;
-    }
-    /* Map Bubble Markers */
-    .rvd-map-pin {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transform: translate(-50%, -50%);
-      cursor: pointer;
-      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .rvd-map-pin:hover {
-      transform: translate(-50%, -54%) scale(1.1);
-      z-index: 9999 !important;
-    }
-    .pin-pill {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      color: #FFFFFF;
-      border: 2px solid #FFFFFF;
-      box-shadow: 0 4px 12px rgba(20, 20, 19, 0.28);
-      white-space: nowrap;
-    }
-    .pin-pill.active-pin {
-      border-color: #141413;
-      box-shadow: 0 0 0 3.5px rgba(20, 20, 19, 0.28), 0 8px 20px rgba(0,0,0,0.4);
-      transform: scale(1.14);
-    }
-    .pin-label {
-      margin-top: 2px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #141413;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1px 6px;
-      border-radius: 5px;
-      border: 1px solid #DCD8CF;
-      white-space: nowrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .factor-track {
-      height: 7px;
-      background: linear-gradient(90deg, #E84C3D 0%, #F59E0B 50%, #10B981 100%);
-      border-radius: 999px;
-      position: relative;
-    }
-    .factor-pill {
-      position: absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      background: #141413;
-      color: #FFFFFF;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 1.5px 7px;
-      border-radius: 999px;
-      border: 2px solid #FFFFFF;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.25);
-      transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    input[type="range"] {
-      -webkit-appearance: none;
-      appearance: none;
-      height: 6px;
-      background: #E5E0D8;
-      border-radius: 999px;
-      outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background: #E84C3D;
-      border: 3px solid #FFFFFF;
-      box-shadow: 0 2px 6px rgba(20, 20, 19, 0.3);
-      cursor: pointer;
-    }
-    .coral-hero {
-      background: linear-gradient(135deg, #E84C3D 0%, #C83728 100%);
-    }
-    .sage-hero {
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
-    }
-  </style>
+        /* Original RA1 Skirmish Grid Background */
+        .ra1-grid {
+            background-color: #2b0000;
+            background-image: 
+                linear-gradient(rgba(180, 0, 0, 0.25) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(180, 0, 0, 0.25) 1px, transparent 1px),
+                linear-gradient(45deg, transparent 49%, rgba(120, 0, 0, 0.15) 50%, transparent 51%);
+            background-size: 32px 32px, 32px 32px, 128px 128px;
+        }
+
+        /* Beveled Metallic Outer Frame */
+        .ra1-metal-frame {
+            border: 10px solid #555;
+            border-image: linear-gradient(to bottom, #888 0%, #444 50%, #222 100%) 1;
+            box-shadow: inset 0 0 15px #000, 0 0 25px rgba(255, 0, 0, 0.3);
+        }
+
+        /* Classic RA1 Red Border Box */
+        .ra1-box {
+            border: 2px solid #aa0000;
+            background-color: rgba(15, 0, 0, 0.88);
+            box-shadow: inset 0 0 8px rgba(255, 0, 0, 0.4), 0 0 6px rgba(0,0,0,0.8);
+        }
+
+        /* RA1 Yellow/Gold Progress Bar & Sliders */
+        .ra1-gold-bar {
+            background: linear-gradient(to bottom, #ffe600 0%, #b88600 50%, #664d00 100%);
+            border: 1px solid #ffe600;
+        }
+
+        .pixel-font {
+            font-family: 'Press Start 2P', monospace;
+        }
+    </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="min-h-screen ra1-grid flex items-center justify-center p-2 md:p-6">
 
-  <!-- ======================================================================
-       CLEAN, ZERO-SCROLLBAR TOP BAR: 3 PLAIN-ENGLISH GOALS
-  ====================================================================== -->
-  <header class="h-14 shrink-0 bg-white border-b border-[#E5E0D8] px-4 lg:px-6 flex items-center justify-between gap-3 z-30">
-    <!-- Brand -->
-    <div class="flex items-center gap-2.5 shrink-0">
-      <div class="w-8 h-8 rounded-lg coral-hero flex items-center justify-center text-white font-display font-bold text-sm shadow-sm">
-        R
-      </div>
-      <div>
-        <span class="font-display font-bold text-base tracking-tight text-ink">RAAI</span>
-        <span id="brand-sub" class="hidden sm:inline-block text-xs text-stone-500 ml-1.5">
-          HK Property & Rent Helper
-        </span>
-      </div>
-    </div>
+    <!-- Metal Frame Container -->
+    <div class="ra1-metal-frame max-w-6xl w-full bg-black/90 p-4 md:p-6 space-y-4">
+        
+        <!-- Header Controls (Name / Side / Hardware) -->
+        <header class="ra1-box p-3 grid grid-cols-1 md:grid-cols-3 gap-4 text-lg items-center">
+            <div>
+                <span class="text-red-400 block text-xs">PROJECT NAME:</span>
+                <span class="pixel-font text-yellow-400 text-sm md:text-base">RA1 VISION AI</span>
+            </div>
+            <div>
+                <span class="text-red-400 block text-xs">SYSTEM STATUS:</span>
+                <span class="text-red-500 font-bold tracking-widest animate-pulse">[ UNDER DEVELOPMENT ]</span>
+            </div>
+            <div class="flex items-center gap-1 text-xs justify-start md:justify-end">
+                <span class="text-red-400">HARDWARE:</span>
+                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">RTX 4060</span>
+                <span class="bg-red-950 px-2 py-0.5 border border-red-800 text-yellow-500 font-bold">PYTHON 3.14</span>
+            </div>
+        </header>
 
-    <!-- Center: 3 Everyday Questions (No Jargon, No Scrollbar) -->
-    <div class="flex items-center bg-[#F3F0EA] p-1 rounded-full border border-[#E0DBD1]">
-      <button onclick="setMode('buy')" id="mode-btn-buy" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all bg-ink text-white shadow-sm">
-        🏠 1. Buy vs. Rent Flat
-      </button>
-      <button onclick="setMode('lease')" id="mode-btn-lease" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all text-stone-600 hover:text-ink">
-        🏢 2. Cut My Office/Shop Rent
-      </button>
-      <button onclick="setMode('supply')" id="mode-btn-supply" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all text-stone-600 hover:text-ink">
-        ⚠️ 3. Unsold New Flat Trap
-      </button>
-    </div>
+        <!-- Main Interface Grid -->
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            
+            <!-- Left 2 Columns: Vision Strategy & System Architecture -->
+            <div class="lg:col-span-2 space-y-4">
+                
+                <!-- Core Strategy Box -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h2 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
+                        <span>CORE VISION STRATEGY</span>
+                        <span class="text-xs text-red-500">NO MEMORY HOOKS</span>
+                    </h2>
+                    <p class="text-red-200 text-base leading-tight">
+                        OPERATING VIA DIRECT SCREEN-CAPTURE AND HARDWARE MOUSE/KEYBOARD DISPATCH. ZERO MEMORY INJECTION.
+                    </p>
+                    
+                    <div class="grid grid-cols-3 gap-2 text-center text-xs pt-1">
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">1. PERCEPTION</div>
+                            <div class="text-red-300">MSS / DXCAM (1280x720)</div>
+                        </div>
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">2. BRAIN</div>
+                            <div class="text-red-300">OPENCV + CUDA YOLO NANO</div>
+                        </div>
+                        <div class="bg-red-950/60 p-2 border border-red-800">
+                            <div class="text-yellow-400 font-bold mb-1">3. EXECUTION</div>
+                            <div class="text-red-300">DIRECTINPUT DRIVERS</div>
+                        </div>
+                    </div>
+                </section>
 
-    <!-- Right: Simple Pro/CCMF Info + Language Toggle -->
-    <div class="flex items-center gap-2 shrink-0">
-      <button onclick="toggleProModal(true)" id="pro-btn-label" class="hidden md:inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-[#F6F4F0] hover:bg-stone-200/70 text-stone-700 border border-[#DCD8CF] transition">
-        Pro Data & Share Card
-      </button>
-      <button onclick="toggleLang()" id="lang-btn" class="px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-white border border-[#DCD8CF] hover:border-ink transition">
-        EN / 繁中
-      </button>
-    </div>
-  </header>
+                <!-- Detailed System Architecture Panel -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1 flex justify-between">
+                        <span>SYSTEM ARCHITECTURE & PIPELINE</span>
+                        <span class="text-xs text-yellow-500">LATENCY TARGET: &lt; 15MS</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">FRAME SPLITTING & ROIs</span>
+                            <p class="text-red-200 text-sm">
+                                TACTICAL VIEWPORT (0,0 &#x2192; 0.78W) IS ISOLATED FROM COMMAND SIDEBAR (0.78W &#x2192; 1.0W) TO PREVENT FALSE-POSITIVE TEMPLATE MATCHES.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">HYBRID INFERENCE ENGINE</span>
+                            <p class="text-red-200 text-sm">
+                                OPENCV NORMED MATCHING FOR UI SYMBOLS (&lt; 2MS ON CPU); CUDA YOLOv11-NANO FOR VIEWPORT UNITS (~4MS ON RTX 4060).
+                            </p>
+                        </div>
 
-  <!-- ======================================================================
-       MAIN WORKSPACE: LEFT MAP (62%) + RIGHT PLAIN-ENGLISH ANSWER PANEL (38%)
-  ====================================================================== -->
-  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">RADAR MINIMAP PARSER</span>
+                            <p class="text-red-200 text-sm">
+                                HSV COLOR-MASKING SEPARATES UNEXPLORED SHROUD (BLACK), FRIENDLY UNITS (GREEN), HOSTILES (RED), AND ORE DEPOSITS (GOLD).
+                            </p>
+                        </div>
 
-    <!-- LEFT: INTERACTIVE HONG KONG MAP -->
-    <div class="relative flex-1 h-[44vh] lg:h-full">
-      <div id="hk-map"></div>
+                        <div class="bg-red-950/40 p-2.5 border border-red-900/80 space-y-1">
+                            <span class="text-yellow-400 font-bold">SPATIAL CONTROL LOOP</span>
+                            <p class="text-red-200 text-sm">
+                                DETECTED BOUNDING CENTERS ARE MAPPED TO DESKTOP SCREEN COORD: X_SCR = LEFT + X_REL, Y_SCR = TOP + Y_REL.
+                            </p>
+                        </div>
+                    </div>
+                </section>
 
-      <!-- Top-Left 1-Line Plain Explanation Banner -->
-      <div class="absolute top-3 left-3 right-3 sm:right-auto z-20 pointer-events-none">
-        <div class="inline-flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[#E5E0D8] shadow-md pointer-events-auto">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
-          <p id="map-question-banner" class="text-xs sm:text-sm font-semibold text-ink">
-            Question: Does monthly rent cover the bank mortgage if you buy a flat here?
-          </p>
-        </div>
-      </div>
+                <!-- Line of Thought / Roadmap -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">LINE OF THOUGHT & ROADMAP</h3>
+                    
+                    <div class="space-y-2 text-base">
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-400 font-bold">► PHASE 1:</span>
+                            <div>
+                                <span class="text-white">DETERMINISTIC BASICS (ACTIVE)</span>
+                                <p class="text-red-400 text-sm">UNPACK MCV, PARSE SIDEBAR UI, BUILD POWER PLANT & BARRACKS.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-500 font-bold">► PHASE 2:</span>
+                            <div>
+                                <span class="text-gray-300">TACTICAL VISUAL RECOGNITION</span>
+                                <p class="text-red-400 text-sm">TRAIN YOLO WEIGHTS ON LOCAL GPU FOR MOBILE UNITS AND ORE FIELDS.</p>
+                            </div>
+                        </div>
 
-      <!-- Bottom-Left Simple Color Key -->
-      <div class="absolute bottom-4 left-3 z-20 bg-white/95 backdrop-blur-md p-2.5 px-3.5 rounded-2xl border border-[#E5E0D8] shadow-md flex flex-wrap items-center gap-4 text-xs">
-        <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded-full bg-[#059669] inline-block"></span>
-          <span id="legend-green" class="font-bold text-stone-700">Green = Rent Pays Mortgage (+Cash)</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded-full bg-[#D97706] inline-block"></span>
-          <span id="legend-amber" class="font-bold text-stone-700">Orange = Break-Even</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <span class="w-3 h-3 rounded-full bg-[#E84C3D] inline-block"></span>
-          <span id="legend-red" class="font-bold text-stone-700">Red = Renting is Cheaper</span>
-        </div>
-      </div>
-    </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-yellow-600 font-bold">► PHASE 3:</span>
+                            <div>
+                                <span class="text-gray-400">ONLINE HUMAN BENCHMARK</span>
+                                <p class="text-red-400 text-sm">LOG MATCH METRICS AGAINST HUMAN LOBBIES TO EVOLVE MODEL CAPABILITY.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
-    <!-- RIGHT: PLAIN-ENGLISH VERDICT & 1-STEP CALCULATOR (ZERO JARGON) -->
-    <aside class="w-full lg:w-[460px] xl:w-[490px] h-[56vh] lg:h-full bg-white border-t lg:border-t-0 lg:border-l border-[#E5E0D8] overflow-y-auto p-5 flex flex-col justify-between z-20 shadow-xl">
-      <div class="space-y-4">
+                <!-- Blueprint Visual Frame -->
+                <section class="ra1-box p-3">
+                    <div class="text-xs text-yellow-500 mb-1">TACTICAL BLUEPRINT SCHEMATIC</div>
+                    <img src="assets/tank.jpg" alt="Mammoth Tank Blueprint" class="w-full h-44 object-cover border border-red-900">
+                </section>
 
-        <!-- 1. DISTRICT SELECTOR HEADER -->
-        <div class="flex items-center justify-between gap-2 pb-3 border-b border-[#ECE9E2]">
-          <div>
-            <span id="insp-region" class="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#F3F0EA] text-stone-600 font-bold">
-              HK ISLAND
+            </div>
+
+            <!-- Right Column: Progress & Checkboxes -->
+            <div class="space-y-4">
+                
+                <!-- Milestone Progress -->
+                <section class="ra1-box p-4 space-y-3">
+                    <h3 class="text-xl text-yellow-400 border-b border-red-900 pb-1">MILESTONES</h3>
+                    
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <div class="flex justify-between text-xs mb-0.5">
+                                <span class="text-white">SCREEN GRABBER</span>
+                                <span class="text-yellow-400">100%</span>
+                            </div>
+                            <div class="w-full bg-red-950 h-3 border border-red-800">
+                                <div class="ra1-gold-bar h-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs mb-0.5">
+                                <span class="text-white">TEMPLATE MATCHING</span>
+                                <span class="text-yellow-400">60%</span>
+                            </div>
+                            <div class="w-full bg-red-950 h-3 border border-red-800">
+                                <div class="ra1-gold-bar h-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 space-y-1.5 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">[✓]</span>
+                                <span class="text-red-200">BASE UNPACK & BUILD LOOP</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-yellow-400">[✓]</span>
+                                <span class="text-red-200">SIDEBAR ICON MATCHING</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">YOLO OBJECT DETECTION</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">MINIMAP RADAR PARSER</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-red-600">[ ]</span>
+                                <span class="text-red-500">ONLINE HUMAN MATCHMAKING</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Vision HUD Visual Frame -->
+                <section class="ra1-box p-3">
+                    <div class="text-xs text-yellow-500 mb-1">VISION HUD OVERLAY</div>
+                    <img src="assets/recog.jpg" alt="Tactical Vision HUD" class="w-full h-40 object-cover border border-red-900">
+                </section>
+
+                <!-- Target Config -->
+                <section class="ra1-box p-3 text-xs space-y-1">
+                    <div class="text-yellow-400 font-bold border-b border-red-900 pb-1">PIPELINE CONFIG</div>
+                    <div class="flex justify-between">
+                        <span class="text-red-400">DEPLOYMENT:</span>
+                        <span class="text-white">CLOUDFLARE PAGES</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-red-400">REPOSITORY:</span>
+                        <span class="text-white">GITHUB AUTO-SYNC</span>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Bottom Action Bar -->
+        <footer class="ra1-box p-2 flex justify-between items-center text-xs">
+            <span class="text-red-500">RA1 VISION AI BUILDOUT // MODEL PERFORMANCE TRACKER</span>
+            <span class="bg-red-900 text-yellow-300 font-bold px-3 py-1 border border-red-600 cursor-pointer hover:bg-red-800">
+                OK
             </span>
-            <h2 id="insp-name" class="font-display font-bold text-xl text-ink mt-0.5">
-              Wan Chai / Causeway Bay
-            </h2>
-          </div>
+        </footer>
 
-          <div class="text-right">
-            <label class="block text-[10px] font-bold text-stone-400 uppercase mb-0.5" id="switch-dist-label">Change District</label>
-            <select id="district-select" onchange="selectDistrict(this.value, true)" class="rounded-xl bg-[#F6F4F0] border border-[#DCD8CF] px-3 py-1.5 text-xs font-bold text-ink focus:outline-none">
-              <!-- Populated by JS -->
-            </select>
-          </div>
-        </div>
-
-        <!-- 2. INSTANT 2-SECOND VERDICT BANNER (Tells a beginner what the numbers mean!) -->
-        <div id="verdict-card" class="rounded-2xl p-4 text-white sage-hero shadow-sm space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span id="verdict-tag" class="text-[10px] font-mono uppercase tracking-wider bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
-              INSTANT VERDICT • BUY BEATS RENT
-            </span>
-            <span id="verdict-score-pill" class="text-xs font-mono font-bold bg-white text-ink px-2.5 py-0.5 rounded-full">
-              Score: 88 / 100
-            </span>
-          </div>
-          <h3 id="verdict-headline" class="font-display font-bold text-2xl">
-            Rent Pays Your Mortgage + HK$3,130/mo
-          </h3>
-          <p id="verdict-plain-why" class="text-xs text-white/90 leading-relaxed">
-            If you buy a HK$6.0M small flat here, the average monthly rent (HK$22,700) is higher than the bank mortgage payment (HK$19,570).
-          </p>
-        </div>
-
-        <!-- 3. THREE SIMPLE HEALTH METERS (No Table Numbers or Codes) -->
-        <div class="bg-[#FAF8F5] rounded-2xl p-4 border border-[#ECE9E2] space-y-3">
-          <div class="text-xs font-bold text-ink" id="health-title">
-            Why This District Scores <span id="health-score-num">88/100</span> (Official Gov Data):
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs font-semibold text-stone-700 mb-1">
-              <span id="bar1-title">1. Rental Return vs. Bank Loan Rate</span>
-              <span id="bar1-val" class="font-mono font-bold text-sage-700">4.54% Return (Beats 3.8% Loan)</span>
-            </div>
-            <div class="factor-track">
-              <div id="bar1-pill" class="factor-pill" style="left: 88%;">Great</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs font-semibold text-stone-700 mb-1">
-              <span id="bar2-title">2. Unsold New Flat Risk</span>
-              <span id="bar2-val" class="font-mono font-bold text-ink">Low Risk (1.6 Yrs to Sell Out)</span>
-            </div>
-            <div class="factor-track">
-              <div id="bar2-pill" class="factor-pill" style="left: 80%;">Safe</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs font-semibold text-stone-700 mb-1">
-              <span id="bar3-title">3. Office & Shop Tenant Discount Power</span>
-              <span id="bar3-val" class="font-mono font-bold text-coral-600">Ask for -20% Rent Cut (19% Empty)</span>
-            </div>
-            <div class="factor-track">
-              <div id="bar3-pill" class="factor-pill" style="left: 90%;">Strong</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ==================================================================
-             4. ONE MATCHING CALCULATOR (Switches automatically with top mode!)
-        ================================================================== -->
-
-        <!-- MODE 1 PANEL: BUY VS RENT CALCULATOR + POPULAR ESTATES -->
-        <div id="calc-buy" class="rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] p-4 space-y-3.5">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-ink" id="buy-calc-title">Try Your Own Budget (70% Mortgage):</span>
-            <span class="text-[11px] font-mono text-stone-500">30-Yr Loan</span>
-          </div>
-
-          <div class="grid grid-cols-2 gap-2.5">
-            <div>
-              <label class="block text-[11px] font-semibold text-stone-600 mb-1" id="lbl-flat-size">Flat Type</label>
-              <select id="input-flat-class" onchange="updateUI()" class="w-full rounded-xl bg-white border border-[#DCD8CF] px-2.5 py-2 text-xs font-bold text-ink">
-                <option value="classA">Small Flat (&lt;430 sq.ft)</option>
-                <option value="classB">Mid Flat (430–750 sq.ft)</option>
-                <option value="classD">Large Flat (&gt;1,076 sq.ft)</option>
-                <option value="factory">Industrial Workshop</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-stone-600 mb-1" id="lbl-flat-price">Flat Price (HK$ Million)</label>
-              <input id="input-price-m" type="number" step="0.5" min="2" max="50" value="6.0" oninput="updateUI()" class="w-full rounded-xl bg-white border border-[#DCD8CF] px-3 py-2 text-xs font-mono font-bold text-ink" />
-            </div>
-          </div>
-
-          <div>
-            <div class="flex justify-between text-xs mb-1">
-              <span class="font-semibold text-stone-600" id="lbl-loan-rate">Bank Mortgage Interest Rate</span>
-              <span id="rate-readout" class="font-mono font-bold text-coral-600">3.80%</span>
-            </div>
-            <input id="input-mort-rate" type="range" min="2.25" max="5.00" step="0.05" value="3.80" oninput="updateUI()" class="w-full" />
-            <div class="flex justify-between text-[10px] font-mono text-stone-400 mt-0.5">
-              <span>2.25% (If Rates Drop)</span>
-              <span>3.80% (Today)</span>
-              <span>5.00% (High)</span>
-            </div>
-          </div>
-
-          <!-- Popular Estates in this District -->
-          <div class="pt-2 border-t border-[#E5E0D8]">
-            <div class="text-[11px] font-bold text-stone-500 uppercase mb-1.5" id="lbl-pop-estates">
-              Popular Estates in This District:
-            </div>
-            <div id="popular-estates-list" class="space-y-1.5"></div>
-          </div>
-        </div>
-
-        <!-- MODE 2 PANEL: CUT MY OFFICE / SHOP / FACTORY RENT -->
-        <div id="calc-lease" class="hidden rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] p-4 space-y-3.5">
-          <div class="grid grid-cols-2 gap-2.5">
-            <div>
-              <label class="block text-[11px] font-semibold text-stone-600 mb-1" id="lbl-biz-type">What Space Do You Rent?</label>
-              <select id="input-lease-type" onchange="updateUI()" class="w-full rounded-xl bg-white border border-[#DCD8CF] px-2.5 py-2 text-xs font-bold text-ink">
-                <option value="officeB">Office (Grade B Standard)</option>
-                <option value="officeA">Office (Grade A Prime)</option>
-                <option value="retail">Street Shop / Retail</option>
-                <option value="factory">Factory / Workshop</option>
-                <option value="storage">Warehouse / Storage</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-[11px] font-semibold text-stone-600 mb-1" id="lbl-cur-rent">Your Current Monthly Rent (HK$)</label>
-              <input id="input-monthly-rent" type="number" step="2000" value="48000" oninput="updateUI()" class="w-full rounded-xl bg-white border border-[#DCD8CF] px-3 py-2 text-xs font-mono font-bold text-ink" />
-            </div>
-          </div>
-
-          <div class="p-3 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-between">
-            <div>
-              <div class="text-[10px] font-mono text-stone-400 uppercase" id="lbl-target-new-rent">TARGET NEW MONTHLY RENT</div>
-              <div id="lease-target-hkd" class="font-display font-bold text-xl text-sage-700">HK$38,400 / mo</div>
-            </div>
-            <div class="text-right">
-              <div class="text-[10px] font-mono text-stone-400 uppercase" id="lbl-3yr-save">3-YEAR SAVINGS</div>
-              <div id="lease-save-3yr" class="font-display font-bold text-lg text-coral-600">Save HK$345,600</div>
-            </div>
-          </div>
-
-          <pre id="lease-whatsapp-box" class="p-3 rounded-xl bg-white border border-[#E5E0D8] font-mono text-[11px] text-stone-700 whitespace-pre-wrap max-h-28 overflow-y-auto leading-relaxed"></pre>
-
-          <div class="flex gap-2">
-            <button onclick="copyLandlordMsg()" id="btn-copy-msg" class="flex-1 py-2.5 rounded-full bg-ink text-white text-xs font-bold hover:bg-coral-600 transition">
-              📋 Copy Message to Landlord
-            </button>
-            <button onclick="toggleProModal(true)" class="px-3.5 py-2.5 rounded-full coral-hero text-white text-xs font-bold shrink-0">
-              Full Audit Pack (HK$880)
-            </button>
-          </div>
-        </div>
-
-        <!-- MODE 3 PANEL: UNSOLD NEW FLAT SUPPLY TRAP EXPLAINER -->
-        <div id="calc-supply" class="hidden rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] p-4 space-y-3">
-          <div class="text-xs font-bold text-ink" id="supply-box-title">
-            Plain-English Supply Check (2026–2027):
-          </div>
-
-          <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="p-2.5 rounded-xl bg-white border border-[#E5E0D8]">
-              <div class="text-[10px] text-stone-400 font-semibold" id="lbl-unsold">Empty + New Flats</div>
-              <div id="sup-total-pool" class="font-display font-bold text-base text-coral-600 mt-0.5">2,530 Flats</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-white border border-[#E5E0D8]">
-              <div class="text-[10px] text-stone-400 font-semibold" id="lbl-buyer-speed">Normal Yearly Demand</div>
-              <div id="sup-yearly-demand" class="font-display font-bold text-base text-sage-700 mt-0.5">1,590 / yr</div>
-            </div>
-            <div class="p-2.5 rounded-xl bg-white border border-[#E5E0D8]">
-              <div class="text-[10px] text-stone-400 font-semibold" id="lbl-old-bldgs">Old Flats (≥30 Yrs)</div>
-              <div id="sup-old-pct" class="font-display font-bold text-base text-ink mt-0.5">68%</div>
-            </div>
-          </div>
-
-          <p id="supply-plain-advice" class="text-xs text-stone-600 leading-relaxed bg-white p-3 rounded-xl border border-[#E5E0D8]"></p>
-        </div>
-
-      </div>
-
-      <!-- Footer -->
-      <div class="pt-3 mt-3 border-t border-[#ECE9E2] flex items-center justify-between text-[11px] text-stone-400 font-mono">
-        <span>OFFICIAL HKSAR RVD + CSDI DATA</span>
-        <button onclick="switchBasemap()" id="basemap-toggle-link" class="text-stone-600 font-bold hover:underline">
-          Switch Map Style
-        </button>
-      </div>
-    </aside>
-
-  </div>
-
-  <!-- ======================================================================
-       MODAL: PRO DATA, 45-YEAR CYCLE & CCMF B2B DOSSIER (Tucked neatly away)
-  ====================================================================== -->
-  <div id="pro-modal" class="hidden fixed inset-0 z-50 bg-ink/65 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-white border border-[#E5E0D8] rounded-3xl max-w-3xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto shadow-2xl">
-      <div class="flex items-center justify-between border-b border-[#ECE9E2] pb-3">
-        <div>
-          <span class="text-[10px] font-mono uppercase text-coral-600 font-bold">PRO TOOLS & CCMF REVENUE ENGINE</span>
-          <h3 class="font-display font-bold text-lg text-ink">1. Official Lease Audit Pack (HK$880) &amp; 2. Agent Share Card</h3>
-        </div>
-        <button onclick="toggleProModal(false)" class="px-3 py-1 rounded-full bg-[#F3F0EA] text-xs font-bold text-ink">
-          Close ✕
-        </button>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-        <div class="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E5E0D8] space-y-2.5">
-          <span class="text-[10px] font-mono font-bold text-coral-600 uppercase">FOR SME TENANTS (HK$880 ONE-OFF)</span>
-          <h4 class="font-display font-bold text-base text-ink">6-Page Building-Specific RVD + CSDI Lease Dossier</h4>
-          <p class="text-stone-600 leading-relaxed">
-            Combines all 9 official RVD datasets (Office/Factory/Retail vacancy, net take-up, building age, and 500m CSDI new supply) into a formal PDF counter-offer pack that saves SMEs HK$200k–HK$500k over a 3-year lease.
-          </p>
-          <button onclick="copyLandlordMsg(); toggleProModal(false);" class="w-full py-2.5 rounded-full bg-ink text-white font-bold">
-            Copy Sample Audit Evidence Text
-          </button>
-        </div>
-
-        <div class="p-4 rounded-2xl bg-ink text-white space-y-3 flex flex-col justify-between">
-          <div class="space-y-2">
-            <span class="text-[10px] font-mono text-emerald-400 uppercase">45-YR CYCLE & VIRAL LIHKG / WHATSAPP CARD</span>
-            <p class="font-mono text-[11px] text-stone-200 leading-relaxed">
-              • <strong>Buy Beats Rent:</strong> HK Island &amp; Sham Shui Po small flats yield 4.4%–4.5% vs 3.8% mortgage (+HK$2,300 to +HK$3,130/mo positive cashflow)<br/>
-              • <strong>Cut Office Rent:</strong> Wan Chai (19.2% empty) &amp; Kwun Tong (22.8% empty) tenants can demand 19%–22% rent cuts<br/>
-              • <strong>Supply Trap:</strong> Kai Tak (4.4 yrs glut) &amp; Yuen Long (3.9 yrs glut)
-            </p>
-          </div>
-          <button onclick="copyViralSummary()" id="btn-copy-viral" class="w-full py-2.5 rounded-full coral-hero text-white font-bold">
-            Copy Summary for WhatsApp / LIHKG
-          </button>
-        </div>
-      </div>
     </div>
-  </div>
 
-  <!-- ======================================================================
-       PLAIN-LANGUAGE ENGINE & ALL 18 HK DISTRICTS
-  ====================================================================== -->
-  <script>
-    let currentLang = 'en';
-    let currentMode = 'buy'; // 'buy' | 'lease' | 'supply'
-    let activeDistrictId = 'wanchai';
-    let mapInstance = null;
-    let markerMap = {};
-    let currentBasemap = 'csdi';
-    let tileLayers = {};
-
-    // Spread-out coordinates so Victoria Harbour pins never overlap
-    const HK_DISTRICTS = [
-      {
-        id: 'wanchai',
-        nameEn: 'Wan Chai / Causeway Bay',
-        nameZh: '灣仔 / 銅鑼灣',
-        region: 'HK ISLAND',
-        lat: 22.2740,
-        lng: 114.1780,
-        yields: { classA: 4.54, classB: 3.68, classD: 2.45, factory: 3.85 },
-        supplyRatio: 1.62,
-        newSupply: 1450,
-        vacantUnits: 1290,
-        demolishedUnits: 210,
-        takeup5y: 1590,
-        age30PlusPct: 68,
-        leaseBench: {
-          officeB: { rent: 395, vac: 19.2, cut: 20 },
-          officeA: { rent: 585, vac: 19.6, cut: 21 },
-          retail: { rent: 1280, vac: 14.2, cut: 18 },
-          factory: { rent: 205, vac: 7.1, cut: 9 },
-          storage: { rent: 145, vac: 8.2, cut: 10 }
-        },
-        estates: [
-          { nameEn: 'Southorn Garden (修頓花園)', yield: 4.62 },
-          { nameEn: 'Elizabeth House (伊利莎伯大廈)', yield: 4.58 }
-        ],
-        score: 88
-      },
-      {
-        id: 'central',
-        nameEn: 'Central & Western',
-        nameZh: '中西區 (中環/西環)',
-        region: 'HK ISLAND',
-        lat: 22.2840,
-        lng: 114.1400,
-        yields: { classA: 4.48, classB: 3.62, classD: 2.30, factory: 3.80 },
-        supplyRatio: 1.85,
-        newSupply: 1820,
-        vacantUnits: 1640,
-        demolishedUnits: 340,
-        takeup5y: 1710,
-        age30PlusPct: 64,
-        leaseBench: {
-          officeB: { rent: 490, vac: 16.5, cut: 16 },
-          officeA: { rent: 915, vac: 14.8, cut: 17 },
-          retail: { rent: 1420, vac: 13.8, cut: 16 },
-          factory: { rent: 215, vac: 6.8, cut: 8 },
-          storage: { rent: 150, vac: 7.9, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'The Belcher’s (寶翠園)', yield: 3.85 },
-          { nameEn: 'Ken. Town Small Flats (西環細單位)', yield: 4.55 }
-        ],
-        score: 85
-      },
-      {
-        id: 'eastern',
-        nameEn: 'Eastern (Taikoo / Quarry Bay)',
-        nameZh: '東區 (太古城 / 鰂魚涌)',
-        region: 'HK ISLAND',
-        lat: 22.2790,
-        lng: 114.2250,
-        yields: { classA: 4.38, classB: 3.72, classD: 2.65, factory: 4.10 },
-        supplyRatio: 1.44,
-        newSupply: 1100,
-        vacantUnits: 1890,
-        demolishedUnits: 140,
-        takeup5y: 2070,
-        age30PlusPct: 61,
-        leaseBench: {
-          officeB: { rent: 315, vac: 15.4, cut: 14 },
-          officeA: { rent: 440, vac: 14.2, cut: 15 },
-          retail: { rent: 960, vac: 11.2, cut: 13 },
-          factory: { rent: 205, vac: 7.1, cut: 9 },
-          storage: { rent: 148, vac: 7.5, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'Taikoo Shing (太古城)', yield: 3.78 },
-          { nameEn: 'Kornhill (康怡花園)', yield: 3.92 }
-        ],
-        score: 86
-      },
-      {
-        id: 'southern',
-        nameEn: 'Southern (South Horizons)',
-        nameZh: '南區 (海怡半島 / 香港仔)',
-        region: 'HK ISLAND',
-        lat: 22.2410,
-        lng: 114.1550,
-        yields: { classA: 4.22, classB: 3.65, classD: 2.55, factory: 4.12 },
-        supplyRatio: 1.78,
-        newSupply: 1650,
-        vacantUnits: 1420,
-        demolishedUnits: 80,
-        takeup5y: 1680,
-        age30PlusPct: 54,
-        leaseBench: {
-          officeB: { rent: 245, vac: 16.8, cut: 15 },
-          officeA: { rent: 320, vac: 17.5, cut: 16 },
-          retail: { rent: 820, vac: 11.5, cut: 12 },
-          factory: { rent: 195, vac: 7.4, cut: 9 },
-          storage: { rent: 142, vac: 8.0, cut: 10 }
-        },
-        estates: [
-          { nameEn: 'South Horizons (海怡半島)', yield: 3.88 },
-          { nameEn: 'Aberdeen Centre (香港仔中心)', yield: 4.25 }
-        ],
-        score: 79
-      },
-      {
-        id: 'yautsimmong',
-        nameEn: 'Yau Tsim Mong (TST / Mong Kok)',
-        nameZh: '油尖旺 (尖沙咀 / 旺角)',
-        region: 'KOWLOON',
-        lat: 22.3090,
-        lng: 114.1640,
-        yields: { classA: 4.35, classB: 3.75, classD: 2.80, factory: 4.05 },
-        supplyRatio: 1.76,
-        newSupply: 1680,
-        vacantUnits: 1920,
-        demolishedUnits: 290,
-        takeup5y: 2040,
-        age30PlusPct: 71,
-        leaseBench: {
-          officeB: { rent: 375, vac: 15.8, cut: 15 },
-          officeA: { rent: 510, vac: 16.2, cut: 16 },
-          retail: { rent: 1350, vac: 12.9, cut: 16 },
-          factory: { rent: 188, vac: 7.4, cut: 9 },
-          storage: { rent: 140, vac: 7.8, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'Island Harbourview (維港灣)', yield: 3.72 },
-          { nameEn: 'Mong Kok Small Flats (旺角細單位)', yield: 4.40 }
-        ],
-        score: 82
-      },
-      {
-        id: 'shamshuipo',
-        nameEn: 'Sham Shui Po (Mei Foo / CSW)',
-        nameZh: '深水埗 (美孚 / 長沙灣)',
-        region: 'KOWLOON',
-        lat: 22.3370,
-        lng: 114.1460,
-        yields: { classA: 4.42, classB: 3.85, classD: 2.85, factory: 4.15 },
-        supplyRatio: 1.18,
-        newSupply: 3680,
-        vacantUnits: 2450,
-        demolishedUnits: 890,
-        takeup5y: 4450,
-        age30PlusPct: 66,
-        leaseBench: {
-          officeB: { rent: 265, vac: 14.8, cut: 13 },
-          officeA: { rent: 340, vac: 15.2, cut: 14 },
-          retail: { rent: 910, vac: 10.8, cut: 12 },
-          factory: { rent: 182, vac: 7.2, cut: 8 },
-          storage: { rent: 138, vac: 7.1, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Mei Foo Sun Chuen (美孚新邨)', yield: 4.28 },
-          { nameEn: 'The Liberte (昇悅居)', yield: 3.95 }
-        ],
-        score: 91
-      },
-      {
-        id: 'kowlooncity',
-        nameEn: 'Kowloon City (Kai Tak / Whampoa)',
-        nameZh: '九龍城 (啟德 / 黃埔)',
-        region: 'KOWLOON',
-        lat: 22.3180,
-        lng: 114.1960,
-        yields: { classA: 3.75, classB: 3.35, classD: 2.60, factory: 3.95 },
-        supplyRatio: 4.40,
-        newSupply: 14850,
-        vacantUnits: 8420,
-        demolishedUnits: 380,
-        takeup5y: 5200,
-        age30PlusPct: 48,
-        leaseBench: {
-          officeB: { rent: 285, vac: 21.0, cut: 19 },
-          officeA: { rent: 365, vac: 22.4, cut: 21 },
-          retail: { rent: 860, vac: 14.5, cut: 17 },
-          factory: { rent: 185, vac: 7.5, cut: 9 },
-          storage: { rent: 136, vac: 8.0, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'Whampoa Garden (黃埔花園)', yield: 4.05 },
-          { nameEn: 'Kai Tak New Flats (啟德新盤)', yield: 3.15 }
-        ],
-        score: 34
-      },
-      {
-        id: 'wongtaisin',
-        nameEn: 'Wong Tai Sin (Diamond Hill)',
-        nameZh: '黃大仙 (鑽石山 / 新蒲崗)',
-        region: 'KOWLOON',
-        lat: 22.3460,
-        lng: 114.1960,
-        yields: { classA: 4.25, classB: 3.72, classD: 2.75, factory: 4.18 },
-        supplyRatio: 1.65,
-        newSupply: 1420,
-        vacantUnits: 1150,
-        demolishedUnits: 95,
-        takeup5y: 1500,
-        age30PlusPct: 58,
-        leaseBench: {
-          officeB: { rent: 225, vac: 16.2, cut: 15 },
-          officeA: { rent: 295, vac: 16.8, cut: 16 },
-          retail: { rent: 780, vac: 11.0, cut: 12 },
-          factory: { rent: 178, vac: 7.4, cut: 9 },
-          storage: { rent: 135, vac: 7.5, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Galaxia (星河明居)', yield: 3.88 }
-        ],
-        score: 78
-      },
-      {
-        id: 'kwuntong',
-        nameEn: 'Kwun Tong (Kowloon Bay)',
-        nameZh: '觀塘 (九龍灣 / 麗港城)',
-        region: 'KOWLOON',
-        lat: 22.3100,
-        lng: 114.2320,
-        yields: { classA: 4.18, classB: 3.65, classD: 2.75, factory: 4.22 },
-        supplyRatio: 2.35,
-        newSupply: 4200,
-        vacantUnits: 3100,
-        demolishedUnits: 160,
-        takeup5y: 3100,
-        age30PlusPct: 55,
-        leaseBench: {
-          officeB: { rent: 248, vac: 19.5, cut: 19 },
-          officeA: { rent: 345, vac: 22.8, cut: 22 },
-          retail: { rent: 890, vac: 11.4, cut: 14 },
-          factory: { rent: 176, vac: 8.2, cut: 11 },
-          storage: { rent: 140, vac: 8.1, cut: 10 }
-        },
-        estates: [
-          { nameEn: 'Amoy Gardens (淘大花園)', yield: 4.45 },
-          { nameEn: 'Laguna City (麗港城)', yield: 4.02 }
-        ],
-        score: 71
-      },
-      {
-        id: 'kwaitsing',
-        nameEn: 'Kwai Tsing (Kwai Fong / Tsing Yi)',
-        nameZh: '葵青 (葵芳 / 青衣)',
-        region: 'NEW TERRITORIES',
-        lat: 22.3530,
-        lng: 114.1120,
-        yields: { classA: 4.18, classB: 3.65, classD: 2.83, factory: 4.28 },
-        supplyRatio: 1.72,
-        newSupply: 1950,
-        vacantUnits: 1620,
-        demolishedUnits: 60,
-        takeup5y: 2040,
-        age30PlusPct: 56,
-        leaseBench: {
-          officeB: { rent: 205, vac: 16.4, cut: 14 },
-          officeA: { rent: 280, vac: 18.9, cut: 15 },
-          retail: { rent: 740, vac: 10.2, cut: 12 },
-          factory: { rent: 152, vac: 7.3, cut: 9 },
-          storage: { rent: 158, vac: 6.8, cut: 7 }
-        },
-        estates: [
-          { nameEn: 'Tierra Verde (盈翠半島)', yield: 3.82 },
-          { nameEn: 'Kwai Fong Gardens (葵芳閣)', yield: 4.36 }
-        ],
-        score: 79
-      },
-      {
-        id: 'tsuenwan',
-        nameEn: 'Tsuen Wan (Tsuen Wan West)',
-        nameZh: '荃灣 (愉景新城 / 荃灣西)',
-        region: 'NEW TERRITORIES',
-        lat: 22.3780,
-        lng: 114.1090,
-        yields: { classA: 4.10, classB: 3.62, classD: 2.83, factory: 4.20 },
-        supplyRatio: 1.84,
-        newSupply: 2100,
-        vacantUnits: 1850,
-        demolishedUnits: 85,
-        takeup5y: 2100,
-        age30PlusPct: 52,
-        leaseBench: {
-          officeB: { rent: 210, vac: 15.5, cut: 14 },
-          officeA: { rent: 290, vac: 16.8, cut: 15 },
-          retail: { rent: 790, vac: 10.5, cut: 12 },
-          factory: { rent: 156, vac: 7.4, cut: 9 },
-          storage: { rent: 150, vac: 7.2, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Tsuen Wan Centre (荃灣中心)', yield: 4.38 },
-          { nameEn: 'Luk Yeung Sun Chuen (綠楊新邨)', yield: 4.05 }
-        ],
-        score: 77
-      },
-      {
-        id: 'shatin',
-        nameEn: 'Sha Tin (City One / Ma On Shan)',
-        nameZh: '沙田 (第一城 / 馬鞍山)',
-        region: 'NEW TERRITORIES',
-        lat: 22.3860,
-        lng: 114.1980,
-        yields: { classA: 4.22, classB: 3.62, classD: 2.85, factory: 4.12 },
-        supplyRatio: 1.88,
-        newSupply: 2900,
-        vacantUnits: 2650,
-        demolishedUnits: 75,
-        takeup5y: 2950,
-        age30PlusPct: 53,
-        leaseBench: {
-          officeB: { rent: 230, vac: 13.5, cut: 12 },
-          officeA: { rent: 310, vac: 14.0, cut: 13 },
-          retail: { rent: 920, vac: 9.8, cut: 11 },
-          factory: { rent: 168, vac: 6.9, cut: 8 },
-          storage: { rent: 152, vac: 6.9, cut: 7 }
-        },
-        estates: [
-          { nameEn: 'City One Shatin (沙田第一城)', yield: 4.52 },
-          { nameEn: 'Sunshine City (新港城)', yield: 4.10 }
-        ],
-        score: 81
-      },
-      {
-        id: 'saikung',
-        nameEn: 'Sai Kung (Tseung Kwan O / LOHAS)',
-        nameZh: '西貢 (將軍澳 / 日出康城)',
-        region: 'NEW TERRITORIES',
-        lat: 22.3040,
-        lng: 114.2720,
-        yields: { classA: 3.95, classB: 3.58, classD: 2.83, factory: 3.90 },
-        supplyRatio: 1.90,
-        newSupply: 5400,
-        vacantUnits: 4120,
-        demolishedUnits: 50,
-        takeup5y: 4950,
-        age30PlusPct: 22,
-        leaseBench: {
-          officeB: { rent: 220, vac: 14.0, cut: 12 },
-          officeA: { rent: 285, vac: 14.8, cut: 13 },
-          retail: { rent: 810, vac: 10.5, cut: 12 },
-          factory: { rent: 162, vac: 7.5, cut: 8 },
-          storage: { rent: 145, vac: 7.4, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Metro City (新都城)', yield: 4.02 },
-          { nameEn: 'LOHAS Park (日出康城)', yield: 3.68 }
-        ],
-        score: 74
-      },
-      {
-        id: 'taipo',
-        nameEn: 'Tai Po (Tai Po Ctr / Pak Shek Kok)',
-        nameZh: '大埔 (大埔中心 / 白石角)',
-        region: 'NEW TERRITORIES',
-        lat: 22.4480,
-        lng: 114.1700,
-        yields: { classA: 3.85, classB: 3.42, classD: 2.83, factory: 3.92 },
-        supplyRatio: 2.90,
-        newSupply: 3450,
-        vacantUnits: 2180,
-        demolishedUnits: 60,
-        takeup5y: 1920,
-        age30PlusPct: 41,
-        leaseBench: {
-          officeB: { rent: 190, vac: 12.8, cut: 11 },
-          officeA: { rent: 250, vac: 13.2, cut: 12 },
-          retail: { rent: 720, vac: 10.9, cut: 12 },
-          factory: { rent: 150, vac: 7.2, cut: 8 },
-          storage: { rent: 140, vac: 7.4, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Tai Po Centre (大埔中心)', yield: 4.08 }
-        ],
-        score: 54
-      },
-      {
-        id: 'north',
-        nameEn: 'North (Fanling / Sheung Shui)',
-        nameZh: '北區 (粉嶺 / 上水)',
-        region: 'NEW TERRITORIES',
-        lat: 22.4960,
-        lng: 114.1380,
-        yields: { classA: 3.88, classB: 3.45, classD: 2.83, factory: 3.98 },
-        supplyRatio: 3.15,
-        newSupply: 5800,
-        vacantUnits: 2950,
-        demolishedUnits: 70,
-        takeup5y: 2750,
-        age30PlusPct: 36,
-        leaseBench: {
-          officeB: { rent: 180, vac: 13.9, cut: 14 },
-          officeA: { rent: 235, vac: 14.5, cut: 14 },
-          retail: { rent: 690, vac: 13.5, cut: 16 },
-          factory: { rent: 145, vac: 7.6, cut: 9 },
-          storage: { rent: 148, vac: 7.0, cut: 8 }
-        },
-        estates: [
-          { nameEn: 'Fanling Centre (粉嶺中心)', yield: 3.98 }
-        ],
-        score: 48
-      },
-      {
-        id: 'yuenlong',
-        nameEn: 'Yuen Long (YOHO / Kingswood)',
-        nameZh: '元朗 (天水圍嘉湖 / 錦田)',
-        region: 'NEW TERRITORIES',
-        lat: 22.4440,
-        lng: 114.0260,
-        yields: { classA: 3.72, classB: 3.30, classD: 2.83, factory: 3.95 },
-        supplyRatio: 3.90,
-        newSupply: 11900,
-        vacantUnits: 7150,
-        demolishedUnits: 120,
-        takeup5y: 4850,
-        age30PlusPct: 34,
-        leaseBench: {
-          officeB: { rent: 185, vac: 14.5, cut: 15 },
-          officeA: { rent: 245, vac: 15.2, cut: 15 },
-          retail: { rent: 710, vac: 12.4, cut: 15 },
-          factory: { rent: 140, vac: 8.0, cut: 10 },
-          storage: { rent: 142, vac: 7.5, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'Kingswood Villas (嘉湖山莊)', yield: 3.95 },
-          { nameEn: 'YOHO Town (新時代廣場)', yield: 3.68 }
-        ],
-        score: 38
-      },
-      {
-        id: 'tuenmun',
-        nameEn: 'Tuen Mun (Siu Hong / So Kwun Wat)',
-        nameZh: '屯門 (兆康 / 掃管笏)',
-        region: 'NEW TERRITORIES',
-        lat: 22.3910,
-        lng: 113.9750,
-        yields: { classA: 3.78, classB: 3.32, classD: 2.68, factory: 4.00 },
-        supplyRatio: 3.48,
-        newSupply: 8920,
-        vacantUnits: 5640,
-        demolishedUnits: 90,
-        takeup5y: 4150,
-        age30PlusPct: 39,
-        leaseBench: {
-          officeB: { rent: 175, vac: 13.8, cut: 14 },
-          officeA: { rent: 230, vac: 14.5, cut: 14 },
-          retail: { rent: 680, vac: 11.8, cut: 14 },
-          factory: { rent: 142, vac: 7.8, cut: 9 },
-          storage: { rent: 138, vac: 7.6, cut: 9 }
-        },
-        estates: [
-          { nameEn: 'Tai Hing Gardens (大興花園)', yield: 3.92 }
-        ],
-        score: 43
-      },
-      {
-        id: 'islands',
-        nameEn: 'Islands (Tung Chung / Discovery Bay)',
-        nameZh: '離島 (東涌 / 愉景灣)',
-        region: 'NEW TERRITORIES',
-        lat: 22.2880,
-        lng: 113.9430,
-        yields: { classA: 4.05, classB: 3.68, classD: 2.83, factory: 3.85 },
-        supplyRatio: 2.15,
-        newSupply: 3100,
-        vacantUnits: 1950,
-        demolishedUnits: 30,
-        takeup5y: 2330,
-        age30PlusPct: 26,
-        leaseBench: {
-          officeB: { rent: 215, vac: 15.2, cut: 14 },
-          officeA: { rent: 295, vac: 16.5, cut: 15 },
-          retail: { rent: 840, vac: 11.2, cut: 13 },
-          factory: { rent: 148, vac: 7.2, cut: 8 },
-          storage: { rent: 162, vac: 6.5, cut: 7 }
-        },
-        estates: [
-          { nameEn: 'Caribbean Coast (映灣園)', yield: 4.12 },
-          { nameEn: 'Discovery Bay (愉景灣)', yield: 3.85 }
-        ],
-        score: 72
-      }
-    ];
-
-    // Helper to calculate monthly net cashflow (Rent minus 70% Mortgage P&I)
-    function calcMonthlyNetCash(yieldPct, priceM, mortRate) {
-      const capHKD = priceM * 1000000;
-      const monthlyRent = Math.round((capHKD * (yieldPct / 100)) / 12);
-      const loanHKD = capHKD * 0.70;
-      const r = (mortRate / 100) / 12;
-      const monthlyMort = Math.round(loanHKD * (r * Math.pow(1 + r, 360)) / (Math.pow(1 + r, 360) - 1));
-      return {
-        monthlyRent,
-        monthlyMort,
-        netCash: monthlyRent - monthlyMort
-      };
-    }
-
-    // ========================================================================
-    // INITIALIZE MAP
-    // ========================================================================
-    function initMap() {
-      mapInstance = L.map('hk-map', {
-        center: [22.3280, 114.1550],
-        zoom: 11,
-        zoomControl: false
-      });
-
-      L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
-
-      const csdiBase = L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/basemap/wgs84/{z}/{x}/{y}.png', {
-        attribution: '&copy; HKSAR CSDI &amp; RVD Official Data',
-        maxZoom: 19
-      });
-      const csdiLabelsEn = L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/en/wgs84/{z}/{x}/{y}.png', { maxZoom: 19 });
-      const csdiLabelsTc = L.tileLayer('https://mapapi.geodata.gov.hk/gs/api/v1.0.0/xyz/label/hk/tc/wgs84/{z}/{x}/{y}.png', { maxZoom: 19 });
-      const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
-
-      tileLayers = { csdiBase, csdiLabelsEn, csdiLabelsTc, osmLayer };
-      csdiBase.addTo(mapInstance);
-      csdiLabelsEn.addTo(mapInstance);
-
-      const sel = document.getElementById('district-select');
-      sel.innerHTML = HK_DISTRICTS.map(d =>
-        `<option value="${d.id}">${currentLang === 'en' ? d.nameEn.split(' (')[0] : d.nameZh.split(' (')[0]}</option>`
-      ).join('');
-
-      setMode('buy');
-    }
-
-    function switchBasemap() {
-      if (currentBasemap === 'csdi') {
-        mapInstance.removeLayer(tileLayers.csdiBase);
-        mapInstance.removeLayer(tileLayers.csdiLabelsEn);
-        mapInstance.removeLayer(tileLayers.csdiLabelsTc);
-        tileLayers.osmLayer.addTo(mapInstance);
-        currentBasemap = 'osm';
-      } else {
-        mapInstance.removeLayer(tileLayers.osmLayer);
-        tileLayers.csdiBase.addTo(mapInstance);
-        if (currentLang === 'en') tileLayers.csdiLabelsEn.addTo(mapInstance);
-        else tileLayers.csdiLabelsTc.addTo(mapInstance);
-        currentBasemap = 'csdi';
-      }
-    }
-
-    // Plain-English Map Pin Text (No more "bps"!)
-    function getPinData(d) {
-      const mortRate = parseFloat(document.getElementById('input-mort-rate')?.value || 3.80);
-      const priceM = parseFloat(document.getElementById('input-price-m')?.value || 6.0);
-      const flatClass = document.getElementById('input-flat-class')?.value || 'classA';
-      const leaseType = document.getElementById('input-lease-type')?.value || 'officeB';
-
-      if (currentMode === 'buy') {
-        const yld = d.yields[flatClass] || d.yields.classA;
-        const { netCash } = calcMonthlyNetCash(yld, priceM, mortRate);
-        const kVal = (Math.abs(netCash) / 1000).toFixed(1);
-        if (netCash >= 300) {
-          return { text: `+$${kVal}k/mo`, color: '#059669' };
-        } else if (netCash >= -500) {
-          return { text: `Even (${yld.toFixed(1)}%)`, color: '#D97706' };
-        } else {
-          return { text: `-$${kVal}k/mo`, color: '#E84C3D' };
-        }
-      }
-
-      if (currentMode === 'lease') {
-        const cut = d.leaseBench[leaseType]?.cut || d.leaseBench.officeB.cut;
-        const color = cut >= 18 ? '#059669' : cut >= 13 ? '#D97706' : '#141413';
-        return { text: `Cut -${cut}%`, color };
-      }
-
-      // Supply Trap Mode
-      const yrs = d.supplyRatio;
-      if (yrs <= 2.0) return { text: `Safe (${yrs.toFixed(1)}Y)`, color: '#059669' };
-      if (yrs <= 3.0) return { text: `Watch (${yrs.toFixed(1)}Y)`, color: '#D97706' };
-      return { text: `Glut ⚠️ ${yrs.toFixed(1)}Y`, color: '#E84C3D' };
-    }
-
-    function renderMapMarkers() {
-      Object.values(markerMap).forEach(m => mapInstance.removeLayer(m));
-      markerMap = {};
-
-      HK_DISTRICTS.forEach(d => {
-        const pin = getPinData(d);
-        const isActive = d.id === activeDistrictId;
-        const shortName = currentLang === 'en' ? d.nameEn.split(' (')[0] : d.nameZh.split(' (')[0];
-
-        const html = `
-          <div class="rvd-map-pin">
-            <div class="pin-pill ${isActive ? 'active-pin' : ''}" style="background:${pin.color};">
-              <span>${pin.text}</span>
-            </div>
-            <div class="pin-label">${shortName}</div>
-          </div>
-        `;
-
-        const icon = L.divIcon({
-          html,
-          className: '',
-          iconSize: [96, 40],
-          iconAnchor: [48, 20]
-        });
-
-        const marker = L.marker([d.lat, d.lng], { icon }).addTo(mapInstance);
-        marker.on('click', () => selectDistrict(d.id, true));
-        markerMap[d.id] = marker;
-      });
-    }
-
-    // ========================================================================
-    // SWITCH TOP MODE (Automatically switches Map + Verdict + Calculator)
-    // ========================================================================
-    function setMode(mode) {
-      currentMode = mode;
-      ['buy', 'lease', 'supply'].forEach(id => {
-        const btn = document.getElementById('mode-btn-' + id);
-        btn.className = id === mode
-          ? 'px-3.5 py-1.5 rounded-full text-xs font-bold transition-all bg-ink text-white shadow-sm'
-          : 'px-3.5 py-1.5 rounded-full text-xs font-bold transition-all text-stone-600 hover:text-ink';
-        document.getElementById('calc-' + id).classList.toggle('hidden', id !== mode);
-      });
-
-      // Update Top Map Question Banner & Bottom Color Legend
-      if (mode === 'buy') {
-        document.getElementById('map-question-banner').textContent = currentLang === 'en'
-          ? '🏠 Question: If you buy a flat here (70% mortgage), does the monthly rent cover your bank loan?'
-          : '🏠 核心問題：喺呢區買樓收租（7成按揭），每月租金夠唔夠冚銀行供款？';
-        document.getElementById('legend-green').textContent = currentLang === 'en' ? 'Green = Rent Pays Mortgage (+Cash Left Over)' : '綠色 = 供平過租 (每月有正現金流)';
-        document.getElementById('legend-amber').textContent = currentLang === 'en' ? 'Orange = Roughly Break-Even' : '橙色 = 租供相若 (打和)';
-        document.getElementById('legend-red').textContent = currentLang === 'en' ? 'Red = Renting is Cheaper than Buying' : '紅色 = 租平過供 (買樓要貼錢供)';
-      } else if (mode === 'lease') {
-        document.getElementById('map-question-banner').textContent = currentLang === 'en'
-          ? '🏢 Question: How much rent discount can you demand from your office, shop, or factory landlord?'
-          : '🏢 核心問題：續租寫字樓、地舖或工廈，憑差估署空置率可以向業主劈租幾多%？';
-        document.getElementById('legend-green').textContent = currentLang === 'en' ? 'Green = Demand 18%–22% Rent Cut (High Vacancy)' : '綠色 = 可劈租 18%–22% (空置極高)';
-        document.getElementById('legend-amber').textContent = currentLang === 'en' ? 'Orange = Demand 13%–17% Rent Cut' : '橙色 = 可劈租 13%–17%';
-        document.getElementById('legend-red').textContent = currentLang === 'en' ? 'Dark = Standard 7%–12% Cut' : '深色 = 一般議價 (-7%至-12%)';
-      } else {
-        document.getElementById('map-question-banner').textContent = currentLang === 'en'
-          ? '⚠️ Question: Which districts are flooded with unsold new developer flats (2026–2027)?'
-          : '⚠️ 核心問題：邊啲地區未來兩年充滿發展商新盤貨尾，買二手樓最易坐艇？';
-        document.getElementById('legend-green').textContent = currentLang === 'en' ? 'Green = Safe (<2 Years to Sell Out)' : '綠色 = 供應少安全 (<2年消化)';
-        document.getElementById('legend-amber').textContent = currentLang === 'en' ? 'Orange = Moderate (2–3 Years)' : '橙色 = 供應中等 (2–3年消化)';
-        document.getElementById('legend-red').textContent = currentLang === 'en' ? 'Red = Heavy Glut (>3 Years of Unsold Stock)' : '紅色 = 新盤貨尾重災區 (>3年消化)';
-      }
-
-      updateUI();
-    }
-
-    function selectDistrict(distId, panMap = true) {
-      activeDistrictId = distId;
-      document.getElementById('district-select').value = distId;
-      const d = HK_DISTRICTS.find(item => item.id === distId);
-
-      if (panMap && mapInstance && d) {
-        mapInstance.flyTo([d.lat, d.lng], 12, { duration: 0.5 });
-      }
-      updateUI();
-    }
-
-    // ========================================================================
-    // UPDATE RIGHT PANEL IN PLAIN HUMAN LANGUAGE
-    // ========================================================================
-    function updateUI() {
-      const d = HK_DISTRICTS.find(item => item.id === activeDistrictId);
-      if (!d) return;
-
-      const mortRate = parseFloat(document.getElementById('input-mort-rate').value) || 3.80;
-      const priceM = parseFloat(document.getElementById('input-price-m').value) || 6.0;
-      const flatClass = document.getElementById('input-flat-class').value || 'classA';
-      const leaseType = document.getElementById('input-lease-type').value || 'officeB';
-      const curMonthlyRent = parseFloat(document.getElementById('input-monthly-rent').value) || 48000;
-
-      document.getElementById('rate-readout').textContent = mortRate.toFixed(2) + '%';
-      document.getElementById('insp-region').textContent = d.region;
-      document.getElementById('insp-name').textContent = currentLang === 'en' ? d.nameEn : d.nameZh;
-      document.getElementById('health-score-num').textContent = `${d.score}/100`;
-
-      const yld = d.yields[flatClass] || d.yields.classA;
-      const { monthlyRent, monthlyMort, netCash } = calcMonthlyNetCash(yld, priceM, mortRate);
-      const leaseObj = d.leaseBench[leaseType] || d.leaseBench.officeB;
-
-      // 1. UPDATE TOP VERDICT CARD (Plain English / Chinese)
-      const vCard = document.getElementById('verdict-card');
-      const vTag = document.getElementById('verdict-tag');
-      const vScore = document.getElementById('verdict-score-pill');
-      const vHead = document.getElementById('verdict-headline');
-      const vWhy = document.getElementById('verdict-plain-why');
-
-      vScore.textContent = `Score: ${d.score} / 100`;
-
-      if (currentMode === 'buy') {
-        if (netCash >= 0) {
-          vCard.className = 'rounded-2xl p-4 text-white sage-hero shadow-sm space-y-1.5';
-          vTag.textContent = currentLang === 'en' ? 'VERDICT • BUY BEATS RENTING' : '結論 • 供平過租 (買入收租划算)';
-          vHead.textContent = currentLang === 'en'
-            ? `Rent Pays Mortgage + HK$${netCash.toLocaleString()}/mo`
-            : `租金夠供樓，仲有賺 +HK$${netCash.toLocaleString()}/月`;
-          vWhy.textContent = currentLang === 'en'
-            ? `On a HK$${priceM.toFixed(1)}M property (${yld.toFixed(2)}% official rental return), monthly rent is HK$${monthlyRent.toLocaleString()} while a 70% mortgage at ${mortRate.toFixed(2)}% costs HK$${monthlyMort.toLocaleString()}/month.`
-            : `以樓價 HK$${priceM.toFixed(1)}M 計算（差估署回報率 ${yld.toFixed(2)}%），每月收租 HK$${monthlyRent.toLocaleString()}，而7成按揭(${mortRate.toFixed(2)}%)每月供款僅 HK$${monthlyMort.toLocaleString()}。`;
-        } else {
-          vCard.className = 'rounded-2xl p-4 text-white coral-hero shadow-sm space-y-1.5';
-          vTag.textContent = currentLang === 'en' ? 'VERDICT • RENTING IS CHEAPER' : '結論 • 租平過供 (租樓更划算)';
-          vHead.textContent = currentLang === 'en'
-            ? `Buying Costs HK$${Math.abs(netCash).toLocaleString()}/mo More Than Rent`
-            : `買樓每月要倒貼 HK$${Math.abs(netCash).toLocaleString()}`;
-          vWhy.textContent = currentLang === 'en'
-            ? `Monthly mortgage payment (HK$${monthlyMort.toLocaleString()}) is higher than market rent (HK$${monthlyRent.toLocaleString()}). Renting saves you cash every month unless you negotiate a lower purchase price.`
-            : `每月按揭供款 (HK$${monthlyMort.toLocaleString()}) 高於市值租金 (HK$${monthlyRent.toLocaleString()})，除非業主大幅減價，否則租樓更慳錢。`;
-        }
-      } else if (currentMode === 'lease') {
-        vCard.className = 'rounded-2xl p-4 text-white sage-hero shadow-sm space-y-1.5';
-        vTag.textContent = currentLang === 'en' ? 'VERDICT • STRONG TENANT BARGAIN POWER' : '結論 • 租客極具劈租籌碼';
-        vHead.textContent = currentLang === 'en'
-          ? `Ask Your Landlord for a -${leaseObj.cut}% Rent Cut`
-          : `建議向業主提出減租 -${leaseObj.cut}%`;
-        vWhy.textContent = currentLang === 'en'
-          ? `Official gov data shows ${leaseObj.vac}% of spaces in this district are sitting empty. Your landlord risks losing 4–6 months of rent if you move out.`
-          : `差估署數據顯示本區同類物業空置率高達 ${leaseObj.vac}%。業主若失去你，隨時面對4至6個月吉租期，你有充足理據要求減租。`;
-      } else {
-        const isSafe = d.supplyRatio <= 2.2;
-        vCard.className = isSafe
-          ? 'rounded-2xl p-4 text-white sage-hero shadow-sm space-y-1.5'
-          : 'rounded-2xl p-4 text-white coral-hero shadow-sm space-y-1.5';
-        vTag.textContent = isSafe
-          ? (currentLang === 'en' ? 'VERDICT • SAFE FROM OVERSUPPLY' : '結論 • 新盤供應少，二手價穩陣')
-          : (currentLang === 'en' ? 'VERDICT • HEAVY NEW FLAT GLUT' : '結論 • 新盤貨尾重災區，小心坐艇');
-        vHead.textContent = isSafe
-          ? (currentLang === 'en' ? `Only ${d.supplyRatio.toFixed(1)} Years of Unsold Stock` : `新供應僅需 ${d.supplyRatio.toFixed(1)} 年即可消化`)
-          : (currentLang === 'en' ? `Takes ${d.supplyRatio.toFixed(1)} Years to Sell All New Flats!` : `新盤及貨尾需時 ${d.supplyRatio.toFixed(1)} 年才賣得晒！`);
-        vWhy.textContent = isSafe
-          ? (currentLang === 'en'
-              ? `Very few new flats (+${d.newSupply.toLocaleString()}) are coming compared to normal buyer demand (${d.takeup5y.toLocaleString()}/yr), plus ${d.demolishedUnits} old flats were demolished.`
-              : `未來兩年新落成僅 ${d.newSupply.toLocaleString()} 伙，加上拆卸重建抵銷 ${d.demolishedUnits} 伙，業主無懼新盤減價搶客。`)
-          : (currentLang === 'en'
-              ? `Developers are dumping ${d.newSupply.toLocaleString()} new flats on top of ${d.vacantUnits.toLocaleString()} empty flats. Developers will cut prices—do not overpay!`
-              : `區內有 ${d.vacantUnits.toLocaleString()} 伙現存空置加上 ${d.newSupply.toLocaleString()} 伙新盤落成，發展商必減價促銷，買家切勿高追！`);
-      }
-
-      // 2. UPDATE 3 SIMPLE HEALTH BARS
-      const b1Pos = Math.min(94, Math.max(12, Math.round((yld / 4.8) * 100)));
-      const b2Pos = Math.min(94, Math.max(10, Math.round(100 - (d.supplyRatio / 4.8) * 90)));
-      const b3Pos = Math.min(94, Math.max(15, Math.round((leaseObj.cut / 24) * 100)));
-
-      document.getElementById('bar1-val').textContent = `${yld.toFixed(2)}% / yr (vs ${mortRate.toFixed(2)}% Loan)`;
-      document.getElementById('bar1-pill').style.left = b1Pos + '%';
-      document.getElementById('bar1-pill').textContent = yld >= mortRate ? (currentLang === 'en' ? 'Beats Loan' : '跑贏按息') : (currentLang === 'en' ? 'Below Loan' : '低於按息');
-
-      document.getElementById('bar2-val').textContent = `${d.supplyRatio.toFixed(1)} Yrs to Sell Out`;
-      document.getElementById('bar2-pill').style.left = b2Pos + '%';
-      document.getElementById('bar2-pill').textContent = d.supplyRatio <= 2.2 ? (currentLang === 'en' ? 'Safe' : '安全') : (currentLang === 'en' ? 'Glut ⚠️' : '過多⚠️');
-
-      document.getElementById('bar3-val').textContent = `-${leaseObj.cut}% Cut (${leaseObj.vac}% Empty)`;
-      document.getElementById('bar3-pill').style.left = b3Pos + '%';
-      document.getElementById('bar3-pill').textContent = `-${leaseObj.cut}%`;
-
-      // 3. UPDATE POPULAR ESTATES IN MODE 1
-      document.getElementById('popular-estates-list').innerHTML = d.estates.map(e => {
-        const estCash = calcMonthlyNetCash(e.yield, priceM, mortRate).netCash;
-        return `
-          <div class="p-2.5 rounded-xl bg-white border border-[#E5E0D8] flex items-center justify-between text-xs">
-            <span class="font-bold text-ink">${e.nameEn}</span>
-            <span class="font-mono font-bold ${estCash >= 0 ? 'text-sage-700' : 'text-coral-600'}">
-              ${e.yield.toFixed(2)}% (${estCash >= 0 ? '+' : '-'}HK$${Math.abs(estCash).toLocaleString()}/mo)
-            </span>
-          </div>
-        `;
-      }).join('');
-
-      // 4. UPDATE LEASE CALCULATOR IN MODE 2
-      const newRentHKD = Math.round(curMonthlyRent * (1 - leaseObj.cut / 100));
-      const saved3YrHKD = Math.round((curMonthlyRent - newRentHKD) * 36);
-      document.getElementById('lease-target-hkd').textContent = `HK$${newRentHKD.toLocaleString()} / mo (-${leaseObj.cut}%)`;
-      document.getElementById('lease-save-3yr').textContent = `Save HK$${saved3YrHKD.toLocaleString()}`;
-
-      document.getElementById('lease-whatsapp-box').textContent =
-`Dear Landlord,
-According to the latest HKSAR Rating and Valuation Department (RVD) statistics for ${d.nameEn}, the official vacancy rate in this district has reached ${leaseObj.vac}% (with official benchmark rent at HK$${leaseObj.rent}/sq.m).
-To renew our lease for another 3 years and save you a 4-month empty void period and agency commission, we propose adjusting our monthly rent from HK$${curMonthlyRent.toLocaleString()} to HK$${newRentHKD.toLocaleString()} (-${leaseObj.cut}%).
-
-業主你好：根據差餉物業估價署(RVD)最新分區數據，本區同類物業空置率達 ${leaseObj.vac}%（官方市值基準租金為 HK$${leaseObj.rent}/平方米）。為達成雙贏續租並為貴方省卻重新招租空置期及佣金，本司建議將月租由 HK$${curMonthlyRent.toLocaleString()} 調整至 HK$${newRentHKD.toLocaleString()} (-${leaseObj.cut}%)。`;
-
-      // 5. UPDATE SUPPLY EXPLAINER IN MODE 3
-      const totalPool = d.newSupply + d.vacantUnits - d.demolishedUnits;
-      document.getElementById('sup-total-pool').textContent = `${totalPool.toLocaleString()} Flats`;
-      document.getElementById('sup-yearly-demand').textContent = `${d.takeup5y.toLocaleString()} / yr`;
-      document.getElementById('sup-old-pct').textContent = `${d.age30PlusPct}%`;
-      document.getElementById('supply-plain-advice').textContent = d.supplyRatio <= 2.2
-        ? (currentLang === 'en'
-            ? `✅ Safe to Buy: There are ${totalPool.toLocaleString()} net available flats vs ${d.takeup5y.toLocaleString()} buyers/renters moving in every year (${d.supplyRatio.toFixed(2)} years supply). Landlords have strong pricing power.`
-            : `✅ 供求健康：區內淨供應僅 ${totalPool.toLocaleString()} 伙，而每年平均吸納達 ${d.takeup5y.toLocaleString()} 伙（只需 ${d.supplyRatio.toFixed(2)} 年消化），租金及二手價有實質支撐。`)
-        : (currentLang === 'en'
-            ? `⚠️ Buyer Warning: There are ${totalPool.toLocaleString()} unsold & upcoming flats here, but buyers only absorb ${d.takeup5y.toLocaleString()} per year. It will take ${d.supplyRatio.toFixed(2)} years to clear this backlog—bargain hard!`
-            : `⚠️ 買家警號：區內累積 ${totalPool.toLocaleString()} 伙空置及新落成單位，但每年僅吸納 ${d.takeup5y.toLocaleString()} 伙，需時 ${d.supplyRatio.toFixed(2)} 年消化，買家務必大幅還價！`);
-
-      renderMapMarkers();
-    }
-
-    function copyLandlordMsg() {
-      const txt = document.getElementById('lease-whatsapp-box').textContent;
-      navigator.clipboard.writeText(txt);
-      const btn = document.getElementById('btn-copy-msg');
-      btn.textContent = '✓ Copied! Paste in WhatsApp / Email';
-      setTimeout(() => { btn.textContent = '📋 Copy Message to Landlord'; }, 2200);
-    }
-
-    function copyViralSummary() {
-      const txt = `【香港買樓定租樓？差估署 RVD 2026 傻瓜地圖】\n1. 🏠 供平過租區：灣仔、中西區、深水埗及沙田第一城細單位收租回報達 4.4%–4.54%，跑贏3.8%按息，買600萬樓收租扣除供樓仲有 +HK$2,300至+$3,130/月正現金流！\n2. 🏢 寫字樓/工廈劈租：灣仔(19.2%空置)及觀塘(22.8%空置)，續租一鍵生成差估署減租信可劈租 -20%！\n3. ⚠️ 新盤貨尾陷阱：啟德(4.4年消化期)及元朗(3.9年)貨尾極多。\n即刻撳地圖睇自己果區：https://raai.pages.dev`;
-      navigator.clipboard.writeText(txt);
-      const btn = document.getElementById('btn-copy-viral');
-      btn.textContent = '✓ Copied to Clipboard!';
-      setTimeout(() => { btn.textContent = 'Copy Summary for WhatsApp / LIHKG'; }, 2200);
-    }
-
-    function toggleProModal(show) {
-      document.getElementById('pro-modal').classList.toggle('hidden', !show);
-    }
-
-    function toggleLang() {
-      currentLang = currentLang === 'en' ? 'zh' : 'en';
-      if (currentBasemap === 'csdi') {
-        if (currentLang === 'en') {
-          mapInstance.removeLayer(tileLayers.csdiLabelsTc);
-          tileLayers.csdiLabelsEn.addTo(mapInstance);
-        } else {
-          mapInstance.removeLayer(tileLayers.csdiLabelsEn);
-          tileLayers.csdiLabelsTc.addTo(mapInstance);
-        }
-      }
-
-      document.getElementById('mode-btn-buy').textContent = currentLang === 'en' ? '🏠 1. Buy vs. Rent Flat' : '🏠 1. 買樓定租樓抵？';
-      document.getElementById('mode-btn-lease').textContent = currentLang === 'en' ? '🏢 2. Cut My Office/Shop Rent' : '🏢 2. 寫字樓/工廈劈租';
-      document.getElementById('mode-btn-supply').textContent = currentLang === 'en' ? '⚠️ 3. Unsold New Flat Trap' : '⚠️ 3. 新盤貨尾陷阱';
-
-      const sel = document.getElementById('district-select');
-      sel.innerHTML = HK_DISTRICTS.map(d =>
-        `<option value="${d.id}" ${d.id === activeDistrictId ? 'selected' : ''}>${currentLang === 'en' ? d.nameEn.split(' (')[0] : d.nameZh.split(' (')[0]}</option>`
-      ).join('');
-
-      setMode(currentMode);
-    }
-
-    window.addEventListener('DOMContentLoaded', initMap);
-  </script>
 </body>
 </html>
